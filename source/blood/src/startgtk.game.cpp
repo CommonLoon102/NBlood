@@ -90,16 +90,6 @@ static struct
     GtkWidget *startbuttonlabel;
 } stwidgets;
 
-static struct
-{
-    INICHAIN const* ini;
-    char *gamedir;
-    ud_setup_t shared;
-#ifdef POLYMER
-    int polymer;
-#endif
-} settings;
-
 static int32_t retval = -1, mode = TAB_MESSAGES;
 extern int32_t gtkenabled;
 static void PopulateForm(unsigned char pgs);

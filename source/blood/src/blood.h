@@ -212,6 +212,15 @@ typedef struct {
     int32_t noautoload;
 } ud_setup_t;
 
+static struct {
+    INICHAIN const* ini;
+    char* gamedir;
+    ud_setup_t shared;
+#ifdef POLYMER
+    int polymer;
+#endif
+} settings;
+
 enum INPUT_MODE {
     INPUT_MODE_0 = 0,
     INPUT_MODE_1,
