@@ -408,10 +408,10 @@ static void PopulateForm(unsigned char pgs)
             gtk_list_store_append(inilist, &iter);
             gtk_list_store_set(inilist, &iter, 0, buf, 1, fg, -1);
 
-            //if (Bstrcmp(settings.ini->zName, fg->zName) == 0)
-            //{
-            //    gtk_combo_box_set_active_iter(GTK_COMBO_BOX(stwidgets.inicombo), &iter);
-            //}
+            if (pINISelected == fg)
+            {
+                gtk_combo_box_set_active_iter(GTK_COMBO_BOX(stwidgets.inicombo), &iter);
+            }
         }
 
         // populate check buttons
