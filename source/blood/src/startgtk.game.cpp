@@ -180,8 +180,8 @@ static void on_inicombo_changed(GtkComboBox* combobox, gpointer user_data)
             settings.ini = NULL;
         else
         {
-            settings.ini = value;
-            pINISelected = settings.ini;
+            settings.ini = (INICHAIN*) value;
+            pINISelected = (INICHAIN*) value;
         }
     }
 }
