@@ -410,7 +410,9 @@ static void PopulateForm(unsigned char pgs)
 
             if (pINISelected == fg)
             {
+                g_signal_handlers_block_by_func(stwidgets.inicombo, (gpointer)on_inicombo_changed, NULL);
                 gtk_combo_box_set_active_iter(GTK_COMBO_BOX(stwidgets.inicombo), &iter);
+                g_signal_handlers_unblock_by_func(stwidgets.inicombo, (gpointer)on_inicombo_changed, NULL);
             }
         }
 
