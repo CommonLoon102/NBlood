@@ -101,7 +101,7 @@ static struct
 } settings;
 
 static int32_t retval = -1, mode = TAB_MESSAGES;
-static INICHAIN* inicontainer[256];
+static INICHAIN** inicontainer[256];
 extern int32_t gtkenabled;
 static void PopulateForm(unsigned char pgs);
 
@@ -181,7 +181,7 @@ static void on_inicombo_changed(GtkComboBox* combobox, gpointer user_data)
             settings.ini = NULL;
         else
         {
-            pINISelected = inicontainer[value];
+            pINISelected = *inicontainer[value];
             settings.ini = pINISelected;
         }
     }
@@ -409,7 +409,7 @@ static void PopulateForm(unsigned char pgs)
 
             gtk_list_store_append(inilist, &iter);
             gtk_list_store_set(inilist, &iter, 0, buf, 1, iini, -1);
-            inicontainer[iini] = fg;
+            inicontainer[iini] = &fg;
 
             if (pINISelected == fg)
             {
