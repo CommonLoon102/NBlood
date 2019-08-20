@@ -53,6 +53,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #define TAB_CONFIG 0
 #define TAB_MESSAGES 1
 
+static struct
+{
+    INICHAIN const * ini;
+    char *gamedir;
+    ud_setup_t shared;
+    int polymer;
+}
+settings;
+
 static HWND startupdlg;
 static HWND pages[3];
 static int done = -1;
