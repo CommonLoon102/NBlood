@@ -392,7 +392,7 @@ static void PopulateForm(unsigned char pgs)
         inilist = GTK_LIST_STORE(gtk_combo_box_get_model(GTK_COMBO_BOX(stwidgets.inicombo)));
         gtk_list_store_clear(inilist);
 
-        for (auto fg = pINIChain; fg; fg = fg->pNext)
+        for (INICHAIN const * fg = pINIChain; fg; fg = fg->pNext)
         {
             char buf[512];
             if (fg->pDescription)
@@ -552,7 +552,7 @@ static GtkWidget *create_window(void)
 
     // INI selector
     {
-        GtkListStore* list = gtk_list_store_new(1, G_TYPE_STRING);
+        GtkListStore* list = gtk_list_store_new(2, G_TYPE_STRING);
         GtkCellRenderer* cell;
 
         stwidgets.inicombo = gtk_combo_box_new_with_model(GTK_TREE_MODEL(list));
