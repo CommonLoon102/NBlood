@@ -548,7 +548,7 @@ static GtkWidget *create_window(void)
     // INI selector LabelText
     stwidgets.inilabel = gtk_label_new_with_mnemonic("Select _INI:");
     gtk_misc_set_alignment(GTK_MISC(stwidgets.inilabel), 0.3, 0);
-    gtk_table_attach(GTK_TABLE(stwidgets.configtlayout), stwidgets.inilabel, 0, 1, 2, 3, GTK_FILL, (GtkAttachOptions)0, 4, 7);
+    gtk_table_attach(GTK_TABLE(stwidgets.configtlayout), stwidgets.inilabel, 0, 1, 3, 4, GTK_FILL, (GtkAttachOptions)0, 4, 7);
 
     // INI selector
     {
@@ -562,7 +562,7 @@ static GtkWidget *create_window(void)
         gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(stwidgets.inicombo), cell, FALSE);
         gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(stwidgets.inicombo), cell, "text", 0, NULL);
     }
-    gtk_table_attach(GTK_TABLE(stwidgets.configtlayout), stwidgets.inicombo, 1, 2, 2, 3,
+    gtk_table_attach(GTK_TABLE(stwidgets.configtlayout), stwidgets.inicombo, 1, 2, 3, 4,
         (GtkAttachOptions)(GTK_EXPAND | GTK_FILL), (GtkAttachOptions)0, 4, 7);
 
     // Empty horizontal layout
