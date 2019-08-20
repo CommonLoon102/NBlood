@@ -392,7 +392,7 @@ static void PopulateForm(unsigned char pgs)
         inilist = GTK_LIST_STORE(gtk_combo_box_get_model(GTK_COMBO_BOX(stwidgets.inicombo)));
         gtk_list_store_clear(inilist);
 
-        for (INICHAIN const * fg = pINIChain; fg; fg = fg->pNext)
+        for (auto fg = pINIChain; fg; fg = fg->pNext)
         {
             char buf[512];
             if (fg->pDescription)
@@ -401,7 +401,7 @@ static void PopulateForm(unsigned char pgs)
                 Bsprintf(buf, "%s", fg->zName);
 
             gtk_list_store_append(inilist, &iter);
-            gtk_list_store_set(inilist, &iter, 0, buf, 1, (void const *)fg, -1);
+            gtk_list_store_set(inilist, &iter, 0, buf, 1, fg, -1);
 
             if (Bstrcmp(settings.ini->zName, fg->zName) == 0)
             {
