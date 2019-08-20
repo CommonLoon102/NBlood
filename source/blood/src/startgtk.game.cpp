@@ -67,6 +67,7 @@ static struct
     GtkWidget *inputdevlabel;
     GtkWidget *inputdevcombo;
     GtkWidget *custommodlabel;
+    GtkWidget *inilabel;
     GtkWidget *custommodcombo;
     GtkWidget *inicombo;
     GtkWidget *emptyhlayout;
@@ -157,6 +158,26 @@ static void on_custommodcombo_changed(GtkComboBox *combobox, gpointer user_data)
         if (*gtk_tree_path_get_indices(path) == NONE)
             settings.gamedir = NULL;
         else settings.gamedir = value;
+    }
+}
+
+static void on_inicombo_changed(GtkComboBox* combobox, gpointer user_data)
+{
+    GtkTreeIter iter;
+    GtkTreeModel* model;
+    GtkTreePath* path;
+    INICHAIN* value;
+    UNREFERENCED_PARAMETER(user_data);
+
+    if (gtk_combo_box_get_active_iter(combobox, &iter))
+    {
+        model = gtk_combo_box_get_model(combobox);
+        gtk_tree_model_get(model, &iter, 0, &value, -1);
+        path = gtk_tree_model_get_path(model, &iter);
+
+        if (*gtk_tree_path_get_indices(path) == NONE)
+            settings.ini = NULL;
+        else settings.ini = value;
     }
 }
 
@@ -368,32 +389,22 @@ static void PopulateForm(unsigned char pgs)
         }
 
         // populate INI list
-        inilist = GTK_LIST_STORE(gtk_combo_box_get_model(GTK_COMBO_BOX(stwidgets.inilist)));
-        gtk_list_store_clear(modsdir);
+        inilist = GTK_LIST_STORE(gtk_combo_box_get_model(GTK_COMBO_BOX(stwidgets.inicombo)));
+        gtk_list_store_clear(inilist);
 
-        gtk_list_store_append(modsdir, &iter);
-        gtk_list_store_set(modsdir, &iter, 0, "None", -1);
-        r = GetModsDirNames(modsdir);
-
-        for (i = 0; i <= r; i++)
+        for (auto fg = pINIChain; fg; fg = fg->pNext)
         {
-            path = gtk_tree_path_new_from_indices(i, -1);
-            gtk_tree_model_get_iter(GTK_TREE_MODEL(modsdir), &iter, path);
-            gtk_tree_model_get(GTK_TREE_MODEL(modsdir), &iter, 0, &value, -1);
+            if (fg->pDescription)
+                Bsprintf(buf, "%s\t%s", fg->pDescription->pzName, fg->zName);
+            else
+                Bsprintf(buf, "%s", fg->zName);
 
-            if (Bstrcmp(settings.gamedir, "/") == 0)
+            gtk_list_store_append(inilist, &iter);
+            gtk_list_store_set(inilist, &iter, 0, buf, 1, fg, -1);
+
+            if (Bstrcmp(settings.ini->zName, fg->zName) == 0)
             {
-                gtk_combo_box_set_active(GTK_COMBO_BOX(stwidgets.custommodcombo), NONE);
-                settings.gamedir = NULL;
-
-                break;
-            }
-            if (Bstrcmp(settings.gamedir, value) == 0)
-            {
-                gtk_combo_box_set_active_iter(GTK_COMBO_BOX(stwidgets.custommodcombo),
-                    &iter);
-
-                break;
+                gtk_combo_box_set_active_iter(GTK_COMBO_BOX(stwidgets.inicombo), &iter);
             }
         }
 
@@ -533,8 +544,25 @@ static GtkWidget *create_window(void)
     gtk_table_attach(GTK_TABLE(stwidgets.configtlayout), stwidgets.custommodcombo, 1,2, 2,3,
         (GtkAttachOptions)(GTK_EXPAND | GTK_FILL), (GtkAttachOptions)0, 4, 7);
 
-    // INI selector
+    // INI selector LabelText
+    stwidgets.custommodlabel = gtk_label_new_with_mnemonic("Select _INI:");
+    gtk_misc_set_alignment(GTK_MISC(stwidgets.inilabel), 0.3, 0);
+    gtk_table_attach(GTK_TABLE(stwidgets.configtlayout), stwidgets.inilabel, 0, 1, 2, 3, GTK_FILL, (GtkAttachOptions)0, 4, 7);
 
+    // INI selector
+    {
+        GtkListStore* list = gtk_list_store_new(1, G_TYPE_STRING);
+        GtkCellRenderer* cell;
+
+        stwidgets.inicombo = gtk_combo_box_new_with_model(GTK_TREE_MODEL(list));
+        g_object_unref(G_OBJECT(list));
+
+        cell = gtk_cell_renderer_text_new();
+        gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(stwidgets.inicombo), cell, FALSE);
+        gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(stwidgets.inicombo), cell, "text", 0, NULL);
+    }
+    gtk_table_attach(GTK_TABLE(stwidgets.configtlayout), stwidgets.inicombo, 1, 2, 2, 3,
+        (GtkAttachOptions)(GTK_EXPAND | GTK_FILL), (GtkAttachOptions)0, 4, 7);
 
     // Empty horizontal layout
     stwidgets.emptyhlayout = gtk_hbox_new(TRUE, 0);
@@ -629,6 +657,9 @@ static GtkWidget *create_window(void)
     g_signal_connect((gpointer) stwidgets.custommodcombo, "changed",
                      G_CALLBACK(on_custommodcombo_changed),
                      NULL);
+    g_signal_connect((gpointer)stwidgets.inicombo, "changed",
+                     G_CALLBACK(on_inicombo_changed),
+                     NULL);
     g_signal_connect((gpointer) stwidgets.autoloadcheck, "toggled",
                      G_CALLBACK(on_autoloadcheck_toggled),
                      NULL);
@@ -646,6 +677,7 @@ static GtkWidget *create_window(void)
     gtk_label_set_mnemonic_widget(GTK_LABEL(stwidgets.vmode3dlabel), stwidgets.vmode3dcombo);
     gtk_label_set_mnemonic_widget(GTK_LABEL(stwidgets.inputdevlabel), stwidgets.inputdevcombo);
     gtk_label_set_mnemonic_widget(GTK_LABEL(stwidgets.custommodlabel), stwidgets.custommodcombo);
+    gtk_label_set_mnemonic_widget(GTK_LABEL(stwidgets.inilabel), stwidgets.inicombo);
 
     return stwidgets.startwin;
 }
@@ -757,6 +789,7 @@ int32_t startwin_run(void)
 
     settings.shared = gSetup;
     settings.gamedir = g_modDir;
+    settings.ini = pINISelected;
     //settings.grp = g_selectedGrp;
 #ifdef POLYMER
     settings.polymer = 0;
@@ -772,6 +805,7 @@ int32_t startwin_run(void)
 #ifdef POLYMER
         glrendmode = (settings.polymer) ? REND_POLYMER : REND_POLYMOST;
 #endif
+        pINISelected = settings.ini;
         //g_selectedGrp = settings.grp;
 
         Bstrcpy(g_modDir, (gNoSetup == 0 && settings.gamedir != NULL) ? settings.gamedir : "/");
