@@ -401,7 +401,7 @@ static void PopulateForm(unsigned char pgs)
                 Bsprintf(buf, "%s", fg->zName);
 
             gtk_list_store_append(inilist, &iter);
-            gtk_list_store_set(inilist, &iter, 0, buf, 1, fg, -1);
+            gtk_list_store_set(inilist, &iter, 0, buf, 1, (void const *)fg, -1);
 
             if (Bstrcmp(settings.ini->zName, fg->zName) == 0)
             {
