@@ -178,7 +178,11 @@ static void on_inicombo_changed(GtkComboBox* combobox, gpointer user_data)
 
         if (*gtk_tree_path_get_indices(path) == NONE)
             settings.ini = NULL;
-        else settings.ini = value;
+        else
+        {
+            settings.ini = value;
+            pINISelected = settings.ini;
+        }
     }
 }
 
