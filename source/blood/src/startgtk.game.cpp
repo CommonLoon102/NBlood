@@ -166,13 +166,14 @@ static void on_inicombo_changed(GtkComboBox* combobox, gpointer user_data)
     GtkTreeIter iter;
     GtkTreeModel* model;
     GtkTreePath* path;
+    char* description;
     INICHAIN* value;
     UNREFERENCED_PARAMETER(user_data);
 
     if (gtk_combo_box_get_active_iter(combobox, &iter))
     {
         model = gtk_combo_box_get_model(combobox);
-        gtk_tree_model_get(model, &iter, 0, &value, -1);
+        gtk_tree_model_get(model, &iter, 0, &description, 1, &value, -1);
         path = gtk_tree_model_get_path(model, &iter);
 
         if (*gtk_tree_path_get_indices(path) == NONE)
