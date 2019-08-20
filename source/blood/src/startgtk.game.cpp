@@ -546,7 +546,7 @@ static GtkWidget *create_window(void)
         (GtkAttachOptions)(GTK_EXPAND | GTK_FILL), (GtkAttachOptions)0, 4, 7);
 
     // INI selector LabelText
-    stwidgets.custommodlabel = gtk_label_new_with_mnemonic("Select _INI:");
+    stwidgets.inilabel = gtk_label_new_with_mnemonic("Select _INI:");
     gtk_misc_set_alignment(GTK_MISC(stwidgets.inilabel), 0.3, 0);
     gtk_table_attach(GTK_TABLE(stwidgets.configtlayout), stwidgets.inilabel, 0, 1, 2, 3, GTK_FILL, (GtkAttachOptions)0, 4, 7);
 
