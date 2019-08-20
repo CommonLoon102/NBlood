@@ -68,6 +68,7 @@ static struct
     GtkWidget *inputdevcombo;
     GtkWidget *custommodlabel;
     GtkWidget *custommodcombo;
+    GtkWidget *inicombo;
     GtkWidget *emptyhlayout;
     GtkWidget *autoloadcheck;
     GtkWidget *alwaysshowcheck;
@@ -90,6 +91,7 @@ static struct
 
 static struct
 {
+    INICHAIN const* ini;
     char *gamedir;
     ud_setup_t shared;
 #ifdef POLYMER
@@ -299,7 +301,7 @@ static void PopulateForm(unsigned char pgs)
 
     if ((pgs == ALL) || (pgs == POPULATE_CONFIG))
     {
-        GtkListStore *devlist, *modsdir;
+        GtkListStore *devlist, *modsdir, *inilist;
         GtkTreeIter iter;
         GtkTreePath *path;
         char *value;
@@ -360,6 +362,36 @@ static void PopulateForm(unsigned char pgs)
             {
                 gtk_combo_box_set_active_iter(GTK_COMBO_BOX(stwidgets.custommodcombo),
                                               &iter);
+
+                break;
+            }
+        }
+
+        // populate INI list
+        inilist = GTK_LIST_STORE(gtk_combo_box_get_model(GTK_COMBO_BOX(stwidgets.inilist)));
+        gtk_list_store_clear(modsdir);
+
+        gtk_list_store_append(modsdir, &iter);
+        gtk_list_store_set(modsdir, &iter, 0, "None", -1);
+        r = GetModsDirNames(modsdir);
+
+        for (i = 0; i <= r; i++)
+        {
+            path = gtk_tree_path_new_from_indices(i, -1);
+            gtk_tree_model_get_iter(GTK_TREE_MODEL(modsdir), &iter, path);
+            gtk_tree_model_get(GTK_TREE_MODEL(modsdir), &iter, 0, &value, -1);
+
+            if (Bstrcmp(settings.gamedir, "/") == 0)
+            {
+                gtk_combo_box_set_active(GTK_COMBO_BOX(stwidgets.custommodcombo), NONE);
+                settings.gamedir = NULL;
+
+                break;
+            }
+            if (Bstrcmp(settings.gamedir, value) == 0)
+            {
+                gtk_combo_box_set_active_iter(GTK_COMBO_BOX(stwidgets.custommodcombo),
+                    &iter);
 
                 break;
             }
@@ -500,6 +532,9 @@ static GtkWidget *create_window(void)
     }
     gtk_table_attach(GTK_TABLE(stwidgets.configtlayout), stwidgets.custommodcombo, 1,2, 2,3,
         (GtkAttachOptions)(GTK_EXPAND | GTK_FILL), (GtkAttachOptions)0, 4, 7);
+
+    // INI selector
+
 
     // Empty horizontal layout
     stwidgets.emptyhlayout = gtk_hbox_new(TRUE, 0);
