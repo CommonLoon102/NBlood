@@ -167,7 +167,7 @@ static void on_inicombo_changed(GtkComboBox* combobox, gpointer user_data)
     GtkTreeModel* model;
     GtkTreePath* path;
     char* description;
-    INICHAIN* value;
+    int* value;
     UNREFERENCED_PARAMETER(user_data);
 
     if (gtk_combo_box_get_active_iter(combobox, &iter))
@@ -180,8 +180,7 @@ static void on_inicombo_changed(GtkComboBox* combobox, gpointer user_data)
             settings.ini = NULL;
         else
         {
-            settings.ini = (INICHAIN*) value;
-            pINISelected = (INICHAIN*) value;
+            settings.ini = (INICHAIN const *)value;
         }
     }
 }
