@@ -394,6 +394,7 @@ static void PopulateForm(unsigned char pgs)
 
         for (auto fg = pINIChain; fg; fg = fg->pNext)
         {
+            char buf[512];
             if (fg->pDescription)
                 Bsprintf(buf, "%s\t%s", fg->pDescription->pzName, fg->zName);
             else
