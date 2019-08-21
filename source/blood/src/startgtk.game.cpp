@@ -167,7 +167,7 @@ static void on_inicombo_changed(GtkComboBox* combobox, gpointer user_data)
     GtkTreeModel* model;
     GtkTreePath* path;
     char* description;
-    int value;
+    INICHAIN const* value;
     UNREFERENCED_PARAMETER(user_data);
 
     if (gtk_combo_box_get_active_iter(combobox, &iter))
@@ -176,17 +176,8 @@ static void on_inicombo_changed(GtkComboBox* combobox, gpointer user_data)
         gtk_tree_model_get(model, &iter, 0, &description, 1, &value, -1);
         path = gtk_tree_model_get_path(model, &iter);
 
-        int inii = 0;
-        for (auto fg = pINIChain; fg; fg = fg->pNext)
-        {
-            if (inii == value)
-            {
-                settings.ini = fg;
-                pINISelected = fg;
-                break;
-            }
-            inii++;
-        }
+        settings.ini = (INICHAIN const *)value;
+        pINISelected = settings.ini;
     }
 }
 
@@ -401,7 +392,6 @@ static void PopulateForm(unsigned char pgs)
         inilist = GTK_LIST_STORE(gtk_combo_box_get_model(GTK_COMBO_BOX(stwidgets.inicombo)));
         gtk_list_store_clear(inilist);
 
-        int inii = 0;
         for (auto fg = pINIChain; fg; fg = fg->pNext)
         {
             char buf[512];
@@ -411,7 +401,7 @@ static void PopulateForm(unsigned char pgs)
                 Bsprintf(buf, "%s", fg->zName);
 
             gtk_list_store_append(inilist, &iter);
-            gtk_list_store_set(inilist, &iter, 0, buf, 1, inii, -1);
+            gtk_list_store_set(inilist, &iter, 0, buf, 1, fg, -1);
 
             if (pINISelected == fg)
             {
@@ -419,8 +409,6 @@ static void PopulateForm(unsigned char pgs)
                 gtk_combo_box_set_active_iter(GTK_COMBO_BOX(stwidgets.inicombo), &iter);
                 g_signal_handlers_unblock_by_func(stwidgets.inicombo, (gpointer)on_inicombo_changed, NULL);
             }
-
-            inii++;
         }
 
         // populate check buttons
