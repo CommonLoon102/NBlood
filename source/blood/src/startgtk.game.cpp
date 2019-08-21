@@ -182,13 +182,13 @@ static void on_inicombo_changed(GtkComboBox* combobox, gpointer user_data)
     if (gtk_combo_box_get_active_iter(combobox, &iter))
     {
         model = gtk_combo_box_get_model(combobox);
-        gtk_tree_model_get(model, &iter, 1, &value);
-        gtk_tree_model_get(model, &iter, 1, &value2);
-        gtk_tree_model_get(model, &iter, 1, &value3);
-        gtk_tree_model_get(model, &iter, 1, &value4);
-        gtk_tree_model_get(model, &iter, 1, &value5);
-        gtk_tree_model_get(model, &iter, 2, &iout);
-        gtk_tree_model_get(model, &iter, 2, &iout2);
+        gtk_tree_model_get(model, &iter, 1, &value, -1);
+        gtk_tree_model_get(model, &iter, 1, &value2, -1);
+        gtk_tree_model_get(model, &iter, 1, &value3, -1);
+        gtk_tree_model_get(model, &iter, 1, &value4, -1);
+        gtk_tree_model_get(model, &iter, 1, &value5, -1);
+        gtk_tree_model_get(model, &iter, 2, &iout, -1);
+        gtk_tree_model_get(model, &iter, 2, &iout2, -1);
 
         path = gtk_tree_model_get_path(model, &iter);
 
