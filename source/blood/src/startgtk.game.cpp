@@ -167,7 +167,7 @@ static void on_inicombo_changed(GtkComboBox* combobox, gpointer user_data)
     GtkTreeModel* model;
     GtkTreePath* path;
     char* description;
-    INICHAIN const* value;
+    int* value;
     UNREFERENCED_PARAMETER(user_data);
 
     if (gtk_combo_box_get_active_iter(combobox, &iter))
@@ -176,8 +176,12 @@ static void on_inicombo_changed(GtkComboBox* combobox, gpointer user_data)
         gtk_tree_model_get(model, &iter, 0, &description, 1, &value, -1);
         path = gtk_tree_model_get_path(model, &iter);
 
-        settings.ini = (INICHAIN const *)value;
-        pINISelected = settings.ini;
+        if (*gtk_tree_path_get_indices(path) == NONE)
+            settings.ini = NULL;
+        else
+        {
+            settings.ini = (INICHAIN const *)value;
+        }
     }
 }
 
@@ -792,8 +796,7 @@ int32_t startwin_run(void)
 
     settings.shared = gSetup;
     settings.gamedir = g_modDir;
-    settings.ini = pINIChain;
-    pINISelected = pINIChain;
+    settings.ini = pINISelected;
     //settings.grp = g_selectedGrp;
 #ifdef POLYMER
     settings.polymer = 0;
