@@ -410,7 +410,7 @@ static void PopulateForm(unsigned char pgs)
         inilist = GTK_LIST_STORE(gtk_combo_box_get_model(GTK_COMBO_BOX(stwidgets.inicombo)));
         gtk_list_store_clear(inilist);
 
-        int i = 0;
+        int ii = 0;
         for (auto fg = pINIChain; fg; fg = fg->pNext)
         {
             char buf[512];
@@ -420,7 +420,7 @@ static void PopulateForm(unsigned char pgs)
                 Bsprintf(buf, "%s", fg->zName);
 
             gtk_list_store_append(inilist, &iter);
-            gtk_list_store_set(inilist, &iter, 0, buf, 1, fg, 2, i, -1);
+            gtk_list_store_set(inilist, &iter, 0, buf, 1, fg, 2, ii, -1);
 
             if (pINISelected == fg)
             {
@@ -429,7 +429,7 @@ static void PopulateForm(unsigned char pgs)
                 g_signal_handlers_unblock_by_func(stwidgets.inicombo, (gpointer)on_inicombo_changed, NULL);
             }
 
-            i++;
+            ii++;
         }
 
         // populate check buttons
