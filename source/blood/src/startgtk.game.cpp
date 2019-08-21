@@ -167,13 +167,27 @@ static void on_inicombo_changed(GtkComboBox* combobox, gpointer user_data)
     GtkTreeModel* model;
     GtkTreePath* path;
     char* description;
+
     int* value;
+    (INICHAIN const*) value2;
+    (INICHAIN*)value3;
+    void* value4;
+    int32_t* value5;
+
+    int iout;
+    int32_t iout2;
+
     UNREFERENCED_PARAMETER(user_data);
 
     if (gtk_combo_box_get_active_iter(combobox, &iter))
     {
         model = gtk_combo_box_get_model(combobox);
-        gtk_tree_model_get(model, &iter, 0, &description, 1, &value, -1);
+        gtk_tree_model_get(model, &iter, 0, &description, 1, &value, 2, &iout, -1);
+        gtk_tree_model_get(model, &iter, 0, &description, 1, &value2, 2, &iout2, -1);
+        gtk_tree_model_get(model, &iter, 0, &description, 1, &value3, 2, &iout2, -1);
+        gtk_tree_model_get(model, &iter, 0, &description, 1, &value4, 2, &iout2, -1);
+        gtk_tree_model_get(model, &iter, 0, &description, 1, &value5, 2, &iout2, -1);
+
         path = gtk_tree_model_get_path(model, &iter);
 
         if (*gtk_tree_path_get_indices(path) == NONE)
@@ -396,6 +410,7 @@ static void PopulateForm(unsigned char pgs)
         inilist = GTK_LIST_STORE(gtk_combo_box_get_model(GTK_COMBO_BOX(stwidgets.inicombo)));
         gtk_list_store_clear(inilist);
 
+        int i = 0;
         for (auto fg = pINIChain; fg; fg = fg->pNext)
         {
             char buf[512];
@@ -405,7 +420,7 @@ static void PopulateForm(unsigned char pgs)
                 Bsprintf(buf, "%s", fg->zName);
 
             gtk_list_store_append(inilist, &iter);
-            gtk_list_store_set(inilist, &iter, 0, buf, 1, fg, -1);
+            gtk_list_store_set(inilist, &iter, 0, buf, 1, fg, 2, i, -1);
 
             if (pINISelected == fg)
             {
@@ -413,6 +428,8 @@ static void PopulateForm(unsigned char pgs)
                 gtk_combo_box_set_active_iter(GTK_COMBO_BOX(stwidgets.inicombo), &iter);
                 g_signal_handlers_unblock_by_func(stwidgets.inicombo, (gpointer)on_inicombo_changed, NULL);
             }
+
+            i++;
         }
 
         // populate check buttons
