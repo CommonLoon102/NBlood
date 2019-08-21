@@ -169,8 +169,8 @@ static void on_inicombo_changed(GtkComboBox* combobox, gpointer user_data)
     char* description;
 
     int* value;
-    (INICHAIN const*) value2;
-    (INICHAIN*)value3;
+    INICHAIN const* value2;
+    INICHAIN* value3;
     void* value4;
     int32_t* value5;
 
