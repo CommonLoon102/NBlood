@@ -167,7 +167,7 @@ static void on_inicombo_changed(GtkComboBox* combobox, gpointer user_data)
     GtkTreeModel* model;
     GtkTreePath* path;
     char* description;
-    int value;
+    unsigned char value;
     UNREFERENCED_PARAMETER(user_data);
 
     if (gtk_combo_box_get_active_iter(combobox, &iter))
@@ -176,7 +176,7 @@ static void on_inicombo_changed(GtkComboBox* combobox, gpointer user_data)
         gtk_tree_model_get(model, &iter, 0, &description, 1, &value, -1);
         path = gtk_tree_model_get_path(model, &iter);
 
-        int inii = 0;
+        unsigned char inii = 0;
         for (auto fg = pINIChain; fg; fg = fg->pNext)
         {
             if (inii == value)
@@ -401,7 +401,7 @@ static void PopulateForm(unsigned char pgs)
         inilist = GTK_LIST_STORE(gtk_combo_box_get_model(GTK_COMBO_BOX(stwidgets.inicombo)));
         gtk_list_store_clear(inilist);
 
-        int inii = 0;
+        unsigned char inii = 0;
         for (auto fg = pINIChain; fg; fg = fg->pNext)
         {
             char buf[512];
