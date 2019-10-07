@@ -605,8 +605,8 @@ else ifeq ($(PLATFORM),$(filter $(PLATFORM),DINGOO GCW))
 else ifeq ($(PLATFORM),SKYOS)
     COMPILERFLAGS += -DUNDERSCORES
 else ifeq ($(PLATFORM),Browser)
-    COMPILERFLAGS += -s USE_PTHREADS=1 -s EMULATE_FUNCTION_POINTER_CASTS=1
-    LINKERFLAGS += -o nblood.js -s USE_PTHREADS=1 -s EMULATE_FUNCTION_POINTER_CASTS=1
+    COMPILERFLAGS += -o nblood.js -s USE_PTHREADS=1 -s EMULATE_FUNCTION_POINTER_CASTS=1
+    LINKERFLAGS += -o nblood.js -s USE_PTHREADS=1 -s EMULATE_FUNCTION_POINTER_CASTS=1 -s USE_SDL=2 -s USE_SDL_MIXER=2
 else ifeq ($(SUBPLATFORM),LINUX)
     # Locate .so files
     LINKERFLAGS += -Wl,-rpath,'$$ORIGIN' -Wl,-z,origin
@@ -1010,20 +1010,26 @@ ifeq ($(RENDERTYPE),SDL)
         endif
     else
         ifeq ($(MIXERTYPE),SDL)
-            LIBS += -l$(SDLNAME)_mixer
+            ifneq ($(PLATFORM),Browser)
+                LIBS += -l$(SDLNAME)_mixer
+            endif
         endif
         ifneq ($(SDLCONFIG),)
             SDLCONFIG_CFLAGS := $(strip $(subst -Dmain=SDL_main,,$(shell $(SDLCONFIG) --cflags)))
             SDLCONFIG_LIBS := $(strip $(subst -mwindows,,$(shell $(SDLCONFIG) --libs)))
 
             COMPILERFLAGS += $(SDLCONFIG_CFLAGS)
-            LIBS += $(SDLCONFIG_LIBS)
+            ifneq ($(PLATFORM),Browser)
+                LIBS += $(SDLCONFIG_LIBS)
+            endif
         else
             ifeq ($(SDL_TARGET),1)
                 COMPILERFLAGS += -D_GNU_SOURCE=1
             endif
             COMPILERFLAGS += -D_REENTRANT -DSDL_USEFOLDER
-            LIBS += -l$(SDLNAME)
+            ifneq ($(PLATFORM),Browser)
+                LIBS += -l$(SDLNAME)
+            endif
         endif
     endif
 endif
