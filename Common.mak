@@ -78,6 +78,7 @@ endif
 EXESUFFIX :=
 DLLSUFFIX := .so
 DOLSUFFIX := .dol
+BROWSEREXTENSION ?= html
 ifeq ($(PLATFORM),DARWIN)
     DLLSUFFIX := .dylib
 endif
@@ -90,6 +91,9 @@ endif
 ifeq ($(PLATFORM),WINDOWS)
     EXESUFFIX := .exe
     DLLSUFFIX := .dll
+endif
+ifeq ($(PLATFORM),BROWSER)
+    EXESUFFIX := .$(BROWSEREXTENSION)
 endif
 
 
@@ -196,7 +200,7 @@ ifeq ($(PLATFORM),DARWIN)
     CXX := $(CROSS)clang++$(CROSS_SUFFIX)
 endif
 
-ifeq ($(PLATFORM),Browser)
+ifeq ($(PLATFORM),BROWSER)
     CC := $(CROSS)emcc$(CROSS_SUFFIX)
     CXX := $(CROSS)em++$(CROSS_SUFFIX)
 endif
@@ -258,7 +262,7 @@ ifeq ($(findstring clang,$(CLANG_POTENTIAL_VERSION)),clang)
     endif
 endif
 
-ifeq ($(PLATFORM),Browser)
+ifeq ($(PLATFORM),BROWSER)
     override CLANG := 0
 endif
 
@@ -274,7 +278,7 @@ endif
 
 GCC_VER :=
 ifeq (0,$(CLANG))
-    ifneq ($(PLATFORM),Browser)
+    ifneq ($(PLATFORM),BROWSER)
         GCC_VER := $(strip $(shell $(CCFULLPATH) -dumpversion 2>&1))
     endif
 endif
@@ -424,7 +428,7 @@ ifneq (i386,$(strip $(IMPLICIT_ARCH)))
     override NOASM := 1
 endif
 
-ifeq ($(PLATFORM),Browser)
+ifeq ($(PLATFORM),BROWSER)
     override NOASM := 1
     override RENDERTYPE := SDL
     override MIXERTYPE := SDL
@@ -605,7 +609,7 @@ else ifeq ($(PLATFORM),$(filter $(PLATFORM),DINGOO GCW))
     COMPILERFLAGS += -D__OPENDINGUX__
 else ifeq ($(PLATFORM),SKYOS)
     COMPILERFLAGS += -DUNDERSCORES
-else ifeq ($(PLATFORM),Browser)
+else ifeq ($(PLATFORM),BROWSER)
     COMMONFLAGS += -s USE_PTHREADS=1 -s EMULATE_FUNCTION_POINTER_CASTS=1
     LINKERFLAGS += -o nblood.html -s WASM=$(WASM) -s USE_SDL=2 -s USE_SDL_MIXER=2
 else ifeq ($(SUBPLATFORM),LINUX)
@@ -653,7 +657,7 @@ ifndef OPTOPT
     ifeq ($(PLATFORM),WII)
         OPTOPT := -mtune=750
     endif
-    ifeq ($(PLATFORM),Browser)
+    ifeq ($(PLATFORM),BROWSER)
         OPTOPT := -msimd128
     endif
 endif
@@ -747,7 +751,7 @@ endif
 ifeq (0,$(RELEASE))
     F_NO_STACK_PROTECTOR :=
 else
-    ifneq ($(PLATFORM),Browser)
+    ifneq ($(PLATFORM),BROWSER)
         ifeq (0,$(CLANG))
             COMMONFLAGS += -funswitch-loops
         endif
@@ -762,7 +766,7 @@ ifneq (0,$(KRANDDEBUG))
     COMMONFLAGS += -fno-inline -fno-inline-functions -fno-inline-functions-called-once
 endif
 
-ifeq ($(PLATFORM),Browser)
+ifeq ($(PLATFORM),BROWSER)
     F_NO_STACK_PROTECTOR :=
     F_JUMP_TABLES :=
 endif
@@ -791,7 +795,7 @@ W_GCC_8 := -Warray-bounds=2
 W_GCC_9 := -Wmultistatement-macros
 W_CLANG := -Wno-unused-value -Wno-parentheses -Wno-unknown-warning-option
 
-ifneq ($(PLATFORM),Browser)
+ifneq ($(PLATFORM),BROWSER)
     ifeq (0,$(CLANG))
         W_CLANG :=
 
@@ -1011,7 +1015,7 @@ ifeq ($(RENDERTYPE),SDL)
         endif
     else
         ifeq ($(MIXERTYPE),SDL)
-            ifneq ($(PLATFORM),Browser)
+            ifneq ($(PLATFORM),BROWSER)
                 LIBS += -l$(SDLNAME)_mixer
             endif
         endif
@@ -1020,7 +1024,7 @@ ifeq ($(RENDERTYPE),SDL)
             SDLCONFIG_LIBS := $(strip $(subst -mwindows,,$(shell $(SDLCONFIG) --libs)))
 
             COMPILERFLAGS += $(SDLCONFIG_CFLAGS)
-            ifneq ($(PLATFORM),Browser)
+            ifneq ($(PLATFORM),BROWSER)
                 LIBS += $(SDLCONFIG_LIBS)
             endif
         else
@@ -1028,7 +1032,7 @@ ifeq ($(RENDERTYPE),SDL)
                 COMPILERFLAGS += -D_GNU_SOURCE=1
             endif
             COMPILERFLAGS += -D_REENTRANT -DSDL_USEFOLDER
-            ifneq ($(PLATFORM),Browser)
+            ifneq ($(PLATFORM),BROWSER)
                 LIBS += -l$(SDLNAME)
             endif
         endif

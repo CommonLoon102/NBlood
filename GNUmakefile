@@ -14,7 +14,7 @@ ifeq ($(FURY),1)
 endif
 
 ifeq ($(BROWSER),1)
-    PLATFORM := Browser
+    PLATFORM := BROWSER
 endif
 
 ### Platform and Toolchain Configuration
