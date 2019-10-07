@@ -744,8 +744,10 @@ endif
 ifeq (0,$(RELEASE))
     F_NO_STACK_PROTECTOR :=
 else
-    ifeq (0,$(CLANG))
-        COMMONFLAGS += -funswitch-loops
+    ifneq ($(PLATFORM),Browser)
+        ifeq (0,$(CLANG))
+            COMMONFLAGS += -funswitch-loops
+        endif
     endif
 
     ifeq (0,$(FORCEDEBUG))
