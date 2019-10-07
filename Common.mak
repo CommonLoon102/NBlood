@@ -603,7 +603,8 @@ else ifeq ($(PLATFORM),$(filter $(PLATFORM),DINGOO GCW))
 else ifeq ($(PLATFORM),SKYOS)
     COMPILERFLAGS += -DUNDERSCORES
 else ifeq ($(PLATFORM),Browser)
-    LINKERFLAGS += -o nblood.js
+    COMPILERFLAGS += -s USE_PTHREADS=1 -s EMULATE_FUNCTION_POINTER_CASTS=1
+    LINKERFLAGS += -o nblood.js -s USE_PTHREADS=1 -s EMULATE_FUNCTION_POINTER_CASTS=1
 else ifeq ($(SUBPLATFORM),LINUX)
     # Locate .so files
     LINKERFLAGS += -Wl,-rpath,'$$ORIGIN' -Wl,-z,origin
@@ -650,7 +651,7 @@ ifndef OPTOPT
         OPTOPT := -mtune=750
     endif
     ifeq ($(PLATFORM),Browser)
-        OPTOPT := 
+        OPTOPT := -march=i686 -msimd128
     endif
 endif
 
