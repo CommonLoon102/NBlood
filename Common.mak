@@ -240,10 +240,6 @@ else
     CLANGNAME := clang
 endif
 
-ifeq ($(PLATFORM),Browser)
-    override CLANG := 0
-endif
-
 # detect clang symlinked as gcc, as in OS X
 CLANG_POTENTIAL_VERSION := $(shell $(CCFULLPATH) --version)
 ifeq ($(findstring clang,$(CLANG_POTENTIAL_VERSION)),clang)
@@ -260,6 +256,10 @@ ifeq ($(findstring clang,$(CLANG_POTENTIAL_VERSION)),clang)
         CLANG_MAJOR := $(word 1,$(CLANG_VER_SPLIT))
         CLANG_MINOR := $(word 2,$(CLANG_VER_SPLIT))
     endif
+endif
+
+ifeq ($(PLATFORM),Browser)
+    override CLANG := 0
 endif
 
 ifneq (0,$(CLANG))
