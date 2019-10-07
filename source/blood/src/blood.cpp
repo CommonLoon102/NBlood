@@ -77,6 +77,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 # endif
 #endif /* _WIN32 */
 
+#ifdef __EMSCRIPTEN__
+#include <emscripten.h>
+#endif
+
 const char* AppProperName = APPNAME;
 const char* AppTechnicalName = APPBASENAME;
 
@@ -1455,6 +1459,132 @@ static int32_t check_filename_casing(void)
 }
 #endif
 
+void MainGameLoop(void)
+{
+    if (handleevents() && quitevent)
+    {
+        KB_KeyDown[sc_Escape] = 1;
+        quitevent = 0;
+    }
+    netUpdate();
+    MUSIC_Update();
+    CONTROL_BindsEnabled = gInputMode == INPUT_MODE_0;
+    switch (gInputMode)
+    {
+    case INPUT_MODE_1:
+        if (gGameMenuMgr.m_bActive)
+            gGameMenuMgr.Process();
+        break;
+    case INPUT_MODE_0:
+        LocalKeys();
+        break;
+    default:
+        break;
+    }
+    if (gQuitGame)
+        return;
+
+    OSD_DispatchQueued();
+
+    bool bDraw;
+    if (gGameStarted)
+    {
+        char gameUpdate = false;
+        double const gameUpdateStartTime = timerGetHiTicks();
+        G_HandleAsync();
+        while (gPredictTail < gNetFifoHead[myconnectindex] && !gPaused)
+        {
+            viewUpdatePrediction(&gFifoInput[gPredictTail & 255][myconnectindex]);
+        }
+        if (numplayers == 1)
+            gBufferJitter = 0;
+        while (totalclock >= gNetFifoClock && ready2send)
+        {
+            netGetInput();
+            gNetFifoClock += 4;
+            while (gNetFifoHead[myconnectindex] - gNetFifoTail > gBufferJitter && !gStartNewGame && !gQuitGame)
+            {
+                int i;
+                for (i = connecthead; i >= 0; i = connectpoint2[i])
+                    if (gNetFifoHead[i] == gNetFifoTail)
+                        break;
+                if (i >= 0)
+                    break;
+                faketimerhandler();
+                ProcessFrame();
+                timerUpdate();
+                gameUpdate = true;
+            }
+            timerUpdate();
+        }
+        if (gameUpdate)
+        {
+            g_gameUpdateTime = timerGetHiTicks() - gameUpdateStartTime;
+            if (g_gameUpdateAvgTime < 0.f)
+                g_gameUpdateAvgTime = g_gameUpdateTime;
+            g_gameUpdateAvgTime = ((GAMEUPDATEAVGTIMENUMSAMPLES - 1.f) * g_gameUpdateAvgTime + g_gameUpdateTime) / ((float)GAMEUPDATEAVGTIMENUMSAMPLES);
+        }
+        bDraw = viewFPSLimit() != 0;
+        if (gQuitRequest && gQuitGame)
+            videoClearScreen(0);
+        else
+        {
+            netCheckSync();
+            if (bDraw)
+            {
+                viewDrawScreen();
+                g_gameUpdateAndDrawTime = timerGetHiTicks() - gameUpdateStartTime;
+            }
+        }
+    }
+    else
+    {
+        bDraw = viewFPSLimit() != 0;
+        if (bDraw)
+        {
+            videoClearScreen(0);
+            rotatesprite(160 << 16, 100 << 16, 65536, 0, 2518, 0, 0, 0x4a, 0, 0, xdim - 1, ydim - 1);
+        }
+        G_HandleAsync();
+        if (gQuitRequest && !gQuitGame)
+            netBroadcastMyLogoff(gQuitRequest == 2);
+    }
+    if (bDraw)
+    {
+        switch (gInputMode)
+        {
+        case INPUT_MODE_1:
+            if (gGameMenuMgr.m_bActive)
+                gGameMenuMgr.Draw();
+            break;
+        case INPUT_MODE_2:
+            gPlayerMsg.ProcessKeys();
+            gPlayerMsg.Draw();
+            break;
+        case INPUT_MODE_3:
+            gEndGameMgr.ProcessKeys();
+            gEndGameMgr.Draw();
+            break;
+        default:
+            break;
+        }
+        videoNextPage();
+    }
+    //scrNextPage();
+    if (TestBitString(gotpic, 2342))
+    {
+        FireProcess();
+        ClearBitString(gotpic, 2342);
+    }
+    //if (byte_148e29 && gStartNewGame)
+    //{
+    //	gStartNewGame = 0;
+    //	gQuitGame = 1;
+    //}
+    if (gStartNewGame)
+        StartLevel(&gGameOptions);
+}
+
 int app_main(int argc, char const * const * argv)
 {
     char buffer[BMAX_PATH];
@@ -1692,131 +1822,14 @@ RESTART:
     if (!bAddUserMap && !gGameStarted)
         gGameMenuMgr.Push(&menuMain, -1);
     ready2send = 1;
+#ifndef __EMSCRIPTEN__
     while (!gQuitGame)
     {
-        if (handleevents() && quitevent)
-        {
-            KB_KeyDown[sc_Escape] = 1;
-            quitevent = 0;
-        }
-        netUpdate();
-        MUSIC_Update();
-        CONTROL_BindsEnabled = gInputMode == INPUT_MODE_0;
-        switch (gInputMode)
-        {
-        case INPUT_MODE_1:
-            if (gGameMenuMgr.m_bActive)
-                gGameMenuMgr.Process();
-            break;
-        case INPUT_MODE_0:
-            LocalKeys();
-            break;
-        default:
-            break;
-        }
-        if (gQuitGame)
-            continue;
-
-        OSD_DispatchQueued();
-        
-        bool bDraw;
-        if (gGameStarted)
-        {
-            char gameUpdate = false;
-            double const gameUpdateStartTime = timerGetHiTicks();
-            G_HandleAsync();
-            while (gPredictTail < gNetFifoHead[myconnectindex] && !gPaused)
-            {
-                viewUpdatePrediction(&gFifoInput[gPredictTail&255][myconnectindex]);
-            }
-            if (numplayers == 1)
-                gBufferJitter = 0;
-            while (totalclock >= gNetFifoClock && ready2send)
-            {
-                netGetInput();
-                gNetFifoClock += 4;
-                while (gNetFifoHead[myconnectindex]-gNetFifoTail > gBufferJitter && !gStartNewGame && !gQuitGame)
-                {
-                    int i;
-                    for (i = connecthead; i >= 0; i = connectpoint2[i])
-                        if (gNetFifoHead[i] == gNetFifoTail)
-                            break;
-                    if (i >= 0)
-                        break;
-                    faketimerhandler();
-                    ProcessFrame();
-                    timerUpdate();
-                    gameUpdate = true;
-                }
-                timerUpdate();
-            }
-            if (gameUpdate)
-            {
-                g_gameUpdateTime = timerGetHiTicks() - gameUpdateStartTime;
-                if (g_gameUpdateAvgTime < 0.f)
-                    g_gameUpdateAvgTime = g_gameUpdateTime;
-                g_gameUpdateAvgTime = ((GAMEUPDATEAVGTIMENUMSAMPLES-1.f)*g_gameUpdateAvgTime+g_gameUpdateTime)/((float) GAMEUPDATEAVGTIMENUMSAMPLES);
-            }
-            bDraw = viewFPSLimit() != 0;
-            if (gQuitRequest && gQuitGame)
-                videoClearScreen(0);
-            else
-            {
-                netCheckSync();
-                if (bDraw)
-                {
-                    viewDrawScreen();
-                    g_gameUpdateAndDrawTime = timerGetHiTicks() - gameUpdateStartTime;
-                }
-            }
-        }
-        else
-        {
-            bDraw = viewFPSLimit() != 0;
-            if (bDraw)
-            {
-                videoClearScreen(0);
-                rotatesprite(160<<16,100<<16,65536,0,2518,0,0,0x4a,0,0,xdim-1,ydim-1);
-            }
-            G_HandleAsync();
-            if (gQuitRequest && !gQuitGame)
-                netBroadcastMyLogoff(gQuitRequest == 2);
-        }
-        if (bDraw)
-        {
-            switch (gInputMode)
-            {
-            case INPUT_MODE_1:
-                if (gGameMenuMgr.m_bActive)
-                    gGameMenuMgr.Draw();
-                break;
-            case INPUT_MODE_2:
-                gPlayerMsg.ProcessKeys();
-                gPlayerMsg.Draw();
-                break;
-            case INPUT_MODE_3:
-                gEndGameMgr.ProcessKeys();
-                gEndGameMgr.Draw();
-                break;
-            default:
-                break;
-            }
-            videoNextPage();
-        }
-        //scrNextPage();
-        if (TestBitString(gotpic, 2342))
-        {
-            FireProcess();
-            ClearBitString(gotpic, 2342);
-        }
-        //if (byte_148e29 && gStartNewGame)
-        //{
-        //	gStartNewGame = 0;
-        //	gQuitGame = 1;
-        //}
-        if (gStartNewGame)
-            StartLevel(&gGameOptions);
+        MainGameLoop();
     }
+#else
+    emscripten_set_main_loop(MainGameLoop, 0, 1);
+#endif
     ready2send = 0;
     if (gDemo.at0)
         gDemo.Close();

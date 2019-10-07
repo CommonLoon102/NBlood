@@ -50,6 +50,10 @@ ifndef PLATFORM
     PLATFORM := $(HOSTPLATFORM)
 endif
 
+ifeq ($(WASM),1)
+    PLATFORM := Browser
+endif
+
 ifndef SUBPLATFORM
     SUBPLATFORM :=
     ifeq ($(PLATFORM),$(filter $(PLATFORM),LINUX DINGOO GCW CAANOO))
@@ -196,6 +200,11 @@ ifeq ($(PLATFORM),DARWIN)
     CXX := $(CROSS)clang++$(CROSS_SUFFIX)
 endif
 
+ifeq ($(PLATFORM),Browser)
+    CC := $(CROSS)emcc$(CROSS_SUFFIX)
+    CXX := $(CROSS)em++$(CROSS_SUFFIX)
+endif
+
 COBJC := $(CC) -x objective-c
 COBJCXX := $(CXX) -x objective-c++
 L_CC := $(CC)
@@ -264,7 +273,9 @@ endif
 
 GCC_VER :=
 ifeq (0,$(CLANG))
-    GCC_VER := $(strip $(shell $(CCFULLPATH) -dumpversion 2>&1))
+    ifneq ($(PLATFORM),Browser)
+        GCC_VER := $(strip $(shell $(CCFULLPATH) -dumpversion 2>&1))
+    endif
 endif
 ifeq (,$(GCC_VER))
     GCC_VER := 4.9.0
@@ -409,6 +420,19 @@ endif
 
 ifneq (i386,$(strip $(IMPLICIT_ARCH)))
     override NOASM := 1
+endif
+
+ifeq ($(PLATFORM),Browser)
+    override NOASM := 1
+    override RENDERTYPE := SDL
+    override MIXERTYPE := SDL
+    override SDL_TARGET := 2
+    override HAVE_GTK2 := 0
+    override STARTUP_WINDOW := 0
+
+    # Enable later
+    override USE_OPENGL := 0
+    override NETCODE := 0
 endif
 
 ifeq (0,$(USE_OPENGL))
@@ -622,6 +646,9 @@ ifndef OPTOPT
     ifeq ($(PLATFORM),WII)
         OPTOPT := -mtune=750
     endif
+    ifeq ($(PLATFORM),Browser)
+        OPTOPT := 
+    endif
 endif
 
 ifeq ($(PACKAGE_REPOSITORY),0)
@@ -726,6 +753,11 @@ ifneq (0,$(KRANDDEBUG))
     COMMONFLAGS += -fno-inline -fno-inline-functions -fno-inline-functions-called-once
 endif
 
+ifeq ($(PLATFORM),Browser)
+    F_NO_STACK_PROTECTOR :=
+    F_JUMP_TABLES :=
+endif
+
 COMMONFLAGS += -fno-strict-aliasing -fno-threadsafe-statics $(F_JUMP_TABLES) $(F_NO_STACK_PROTECTOR)
 
 
@@ -750,48 +782,50 @@ W_GCC_8 := -Warray-bounds=2
 W_GCC_9 := -Wmultistatement-macros
 W_CLANG := -Wno-unused-value -Wno-parentheses -Wno-unknown-warning-option
 
-ifeq (0,$(CLANG))
-    W_CLANG :=
+ifneq ($(PLATFORM),Browser)
+    ifeq (0,$(CLANG))
+        W_CLANG :=
 
-    ifneq (,$(filter 4 5 6 7 8,$(GCC_MAJOR)))
-        W_GCC_9 :=
-        ifneq (,$(filter 4 5 6 7,$(GCC_MAJOR)))
+        ifneq (,$(filter 4 5 6 7 8,$(GCC_MAJOR)))
+            W_GCC_9 :=
+            ifneq (,$(filter 4 5 6 7,$(GCC_MAJOR)))
+                W_GCC_8 :=
+                ifneq (,$(filter 4 5 6,$(GCC_MAJOR)))
+                    W_GCC_7 :=
+                    ifneq (,$(filter 4 5,$(GCC_MAJOR)))
+                        W_GCC_6 :=
+                    endif
+                endif
+            endif
+        endif
+
+        ifeq (0,$(GCC_PREREQ_4))
+            W_GCC_9 :=
             W_GCC_8 :=
-            ifneq (,$(filter 4 5 6,$(GCC_MAJOR)))
-                W_GCC_7 :=
-                ifneq (,$(filter 4 5,$(GCC_MAJOR)))
-                    W_GCC_6 :=
-                endif
-            endif     
-        endif
-    endif
-
-    ifeq (0,$(GCC_PREREQ_4))
-        W_GCC_9 :=
-        W_GCC_8 :=
-        W_GCC_7 :=
-        W_GCC_6 :=
-        W_GCC_4_5 :=
-        W_GCC_4_4 :=
-        ifeq (0,$(OPTLEVEL))
-            W_UNINITIALIZED :=
-        endif
-        W_GCC_4_2 :=
-        W_GCC_4_1 :=
-    endif
-
-    ifeq (4,$(GCC_MAJOR))
-        ifneq (,$(filter 0 1 2 3 4,$(GCC_MINOR)))
+            W_GCC_7 :=
+            W_GCC_6 :=
             W_GCC_4_5 :=
-            ifneq (,$(filter 0 1 2 3,$(GCC_MINOR)))
-                W_GCC_4_4 :=
-                ifeq (0,$(OPTLEVEL))
-                    W_UNINITIALIZED :=
-                endif
-                ifneq (,$(filter 0 1,$(GCC_MINOR)))
-                    W_GCC_4_2 :=
-                    ifeq (0,$(GCC_MINOR))
-                        W_GCC_4_1 :=
+            W_GCC_4_4 :=
+            ifeq (0,$(OPTLEVEL))
+                W_UNINITIALIZED :=
+            endif
+            W_GCC_4_2 :=
+            W_GCC_4_1 :=
+        endif
+
+        ifeq (4,$(GCC_MAJOR))
+            ifneq (,$(filter 0 1 2 3 4,$(GCC_MINOR)))
+                W_GCC_4_5 :=
+                ifneq (,$(filter 0 1 2 3,$(GCC_MINOR)))
+                    W_GCC_4_4 :=
+                    ifeq (0,$(OPTLEVEL))
+                        W_UNINITIALIZED :=
+                    endif
+                    ifneq (,$(filter 0 1,$(GCC_MINOR)))
+                        W_GCC_4_2 :=
+                        ifeq (0,$(GCC_MINOR))
+                            W_GCC_4_1 :=
+                        endif
                     endif
                 endif
             endif
