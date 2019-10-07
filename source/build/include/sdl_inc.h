@@ -6,6 +6,21 @@
 # include "windows_inc.h"
 #endif
 
+#ifdef __EMSCRIPTEN__
+#undef __MMX__
+#undef __SSE__
+#undef __SSE2__
+#undef __SSE3__
+#undef __SSSE3__
+#undef __SSE4_1__
+#undef __SSE4_2__
+#undef __AVX__
+#undef __AVX2__
+#undef __AES__
+#undef __3dNOW__
+#define SDL_DISABLE_IMMINTRIN_H
+#endif
+
 // Workaround for i686-MinGW-w64.
 #if defined __MINGW64_VERSION_MAJOR && !defined __MINGW64__
 # define __MINGW64_VERSION_MAJOR_BACKUP __MINGW64_VERSION_MAJOR
