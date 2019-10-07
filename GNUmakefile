@@ -13,6 +13,10 @@ ifeq ($(FURY),1)
     SIMPLE_MENU := 1
 endif
 
+ifeq ($(WASM),1)
+    PLATFORM := Browser
+endif
+
 ### Platform and Toolchain Configuration
 include Common.mak
 

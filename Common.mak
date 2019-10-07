@@ -50,10 +50,6 @@ ifndef PLATFORM
     PLATFORM := $(HOSTPLATFORM)
 endif
 
-ifeq ($(WASM),1)
-    PLATFORM := Browser
-endif
-
 ifndef SUBPLATFORM
     SUBPLATFORM :=
     ifeq ($(PLATFORM),$(filter $(PLATFORM),LINUX DINGOO GCW CAANOO))
@@ -243,6 +239,11 @@ ifeq ($(findstring clang,$(CC) $(MAKECMDGOALS)),clang)
 else
     CLANGNAME := clang
 endif
+
+ifeq ($(PLATFORM),Browser)
+    override CLANG := 0
+endif
+
 # detect clang symlinked as gcc, as in OS X
 CLANG_POTENTIAL_VERSION := $(shell $(CCFULLPATH) --version)
 ifeq ($(findstring clang,$(CLANG_POTENTIAL_VERSION)),clang)
@@ -601,6 +602,8 @@ else ifeq ($(PLATFORM),$(filter $(PLATFORM),DINGOO GCW))
     COMPILERFLAGS += -D__OPENDINGUX__
 else ifeq ($(PLATFORM),SKYOS)
     COMPILERFLAGS += -DUNDERSCORES
+else ifeq ($(PLATFORM),Browser)
+    LINKERFLAGS += -o nblood.js
 else ifeq ($(SUBPLATFORM),LINUX)
     # Locate .so files
     LINKERFLAGS += -Wl,-rpath,'$$ORIGIN' -Wl,-z,origin
