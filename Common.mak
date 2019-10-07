@@ -434,6 +434,8 @@ ifeq ($(PLATFORM),Browser)
     # Enable later
     override USE_OPENGL := 0
     override NETCODE := 0
+    override HAVE_VORBIS := 0
+    override HAVE_FLAC := 0
 endif
 
 ifeq (0,$(USE_OPENGL))
