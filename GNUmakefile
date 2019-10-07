@@ -13,7 +13,7 @@ ifeq ($(FURY),1)
     SIMPLE_MENU := 1
 endif
 
-ifeq ($(WASM),1)
+ifeq ($(BROWSER),1)
     PLATFORM := Browser
 endif
 
