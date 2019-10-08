@@ -610,8 +610,8 @@ else ifeq ($(PLATFORM),$(filter $(PLATFORM),DINGOO GCW))
 else ifeq ($(PLATFORM),SKYOS)
     COMPILERFLAGS += -DUNDERSCORES
 else ifeq ($(PLATFORM),BROWSER)
-    COMMONFLAGS += -s EMULATE_FUNCTION_POINTER_CASTS=1
-    LINKERFLAGS += -o nblood.$(BROWSEREXTENSION) -s WASM=$(WASM) -s USE_SDL=2 -s USE_SDL_MIXER=2
+    COMMONFLAGS += -s EMULATE_FUNCTION_POINTER_CASTS=1 -s ALLOW_MEMORY_GROWTH=1 -s ASSERTIONS=1
+    LINKERFLAGS += -o nblood.$(BROWSEREXTENSION) -s WASM=$(WASM) -s USE_SDL=2 -s USE_SDL_MIXER=2 --preload-file nblood.pk3 --preload-file asset_dir@/
 else ifeq ($(SUBPLATFORM),LINUX)
     # Locate .so files
     LINKERFLAGS += -Wl,-rpath,'$$ORIGIN' -Wl,-z,origin
