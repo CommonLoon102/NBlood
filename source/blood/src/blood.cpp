@@ -1809,8 +1809,10 @@ RESTART:
         goto RESTART;
     }
     UpdateNetworkMenus();
+#ifndef __EMSCRIPTEN__
     if (!gDemo.at0 && gDemo.at59ef > 0 && gGameOptions.nGameType == 0 && !bNoDemo)
         gDemo.SetupPlayback(NULL);
+#endif
     viewSetCrosshairColor(CrosshairColors.r, CrosshairColors.g, CrosshairColors.b);
     gQuitGame = 0;
     gRestartGame = 0;
@@ -1820,8 +1822,10 @@ RESTART:
         KB_FlushKeyboardQueue();
         keyFlushScans();
     }
+#ifndef __EMSCRIPTEN__
     else if (gDemo.at1 && !bAddUserMap && !bNoDemo)
         gDemo.Playback();
+#endif
     if (gDemo.at59ef > 0)
         gGameMenuMgr.Deactivate();
     if (!bAddUserMap && !gGameStarted)
