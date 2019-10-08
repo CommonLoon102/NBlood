@@ -658,7 +658,7 @@ ifndef OPTOPT
         OPTOPT := -mtune=750
     endif
     ifeq ($(PLATFORM),BROWSER)
-        OPTOPT := -msimd128
+        OPTOPT :=
     endif
 endif
 
