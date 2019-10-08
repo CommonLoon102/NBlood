@@ -1482,7 +1482,12 @@ void MainGameLoop(void)
         break;
     }
     if (gQuitGame)
+    {
+#ifdef __EMSCRIPTEN__
+        emscripten_cancel_main_loop();
+#endif
         return;
+    }
 
     OSD_DispatchQueued();
 
