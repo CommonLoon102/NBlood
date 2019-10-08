@@ -611,7 +611,7 @@ else ifeq ($(PLATFORM),SKYOS)
     COMPILERFLAGS += -DUNDERSCORES
 else ifeq ($(PLATFORM),BROWSER)
     COMMONFLAGS += -s USE_PTHREADS=1 -s EMULATE_FUNCTION_POINTER_CASTS=1
-    LINKERFLAGS += -o nblood.html -s WASM=$(WASM) -s USE_SDL=2 -s USE_SDL_MIXER=2
+    LINKERFLAGS += -o nblood.html -s WASM=$(WASM) -s USE_SDL=2 -s USE_SDL_MIXER=2 --no-check-features
 else ifeq ($(SUBPLATFORM),LINUX)
     # Locate .so files
     LINKERFLAGS += -Wl,-rpath,'$$ORIGIN' -Wl,-z,origin
@@ -1015,26 +1015,20 @@ ifeq ($(RENDERTYPE),SDL)
         endif
     else
         ifeq ($(MIXERTYPE),SDL)
-            ifneq ($(PLATFORM),BROWSER)
-                LIBS += -l$(SDLNAME)_mixer
-            endif
+            LIBS += -l$(SDLNAME)_mixer
         endif
         ifneq ($(SDLCONFIG),)
             SDLCONFIG_CFLAGS := $(strip $(subst -Dmain=SDL_main,,$(shell $(SDLCONFIG) --cflags)))
             SDLCONFIG_LIBS := $(strip $(subst -mwindows,,$(shell $(SDLCONFIG) --libs)))
 
             COMPILERFLAGS += $(SDLCONFIG_CFLAGS)
-            ifneq ($(PLATFORM),BROWSER)
-                LIBS += $(SDLCONFIG_LIBS)
-            endif
+            LIBS += $(SDLCONFIG_LIBS)
         else
             ifeq ($(SDL_TARGET),1)
                 COMPILERFLAGS += -D_GNU_SOURCE=1
             endif
             COMPILERFLAGS += -D_REENTRANT -DSDL_USEFOLDER
-            ifneq ($(PLATFORM),BROWSER)
-                LIBS += -l$(SDLNAME)
-            endif
+            LIBS += -l$(SDLNAME)
         endif
     endif
 endif
