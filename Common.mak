@@ -429,6 +429,7 @@ ifneq (i386,$(strip $(IMPLICIT_ARCH)))
 endif
 
 ifeq ($(PLATFORM),BROWSER)
+    override STRIP :=
     override NOASM := 1
     override RENDERTYPE := SDL
     override MIXERTYPE := SDL
