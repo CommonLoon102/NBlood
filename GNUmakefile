@@ -13,10 +13,6 @@ ifeq ($(FURY),1)
     SIMPLE_MENU := 1
 endif
 
-ifeq ($(BROWSER),1)
-    PLATFORM := BROWSER
-endif
-
 ### Platform and Toolchain Configuration
 include Common.mak
 
