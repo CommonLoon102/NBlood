@@ -436,11 +436,11 @@ ifeq ($(PLATFORM),BROWSER)
     override SDL_TARGET := 2
     override HAVE_GTK2 := 0
     override STARTUP_WINDOW := 0
+    override HAVE_VORBIS := 0
 
     # Enable later
     override USE_OPENGL := 0
     override NETCODE := 0
-    override HAVE_VORBIS := 0
     override HAVE_FLAC := 0
 endif
 
@@ -611,8 +611,8 @@ else ifeq ($(PLATFORM),$(filter $(PLATFORM),DINGOO GCW))
 else ifeq ($(PLATFORM),SKYOS)
     COMPILERFLAGS += -DUNDERSCORES
 else ifeq ($(PLATFORM),BROWSER)
-    COMMONFLAGS += -s EMULATE_FUNCTION_POINTER_CASTS=1 -s ALLOW_MEMORY_GROWTH=1 --no-heap-copy -s ASSERTIONS=1
-    LINKERFLAGS += -o nblood.$(BROWSEREXTENSION) -s WASM=$(WASM) -s USE_SDL=2 -s USE_SDL_MIXER=2 --preload-file nblood.pk3 --preload-file asset_dir@/
+    COMMONFLAGS += -s EMULATE_FUNCTION_POINTER_CASTS=1 -s ALLOW_MEMORY_GROWTH=1 --no-heap-copy -s ASSERTIONS=1 -s USE_OGG=1 -s USE_VORBIS=1
+    LINKERFLAGS += -o nblood.$(BROWSEREXTENSION) -s WASM=$(WASM) -s USE_SDL=2 -s USE_SDL_MIXER=2 --preload-file nblood.pk3 --preload-file asset_dir@/ --use-preload-plugins
 else ifeq ($(SUBPLATFORM),LINUX)
     # Locate .so files
     LINKERFLAGS += -Wl,-rpath,'$$ORIGIN' -Wl,-z,origin
