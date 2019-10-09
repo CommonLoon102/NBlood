@@ -1488,8 +1488,6 @@ void MainGameLoop(void)
     if (gQuitGame)
     {
 #ifdef __EMSCRIPTEN__
-        if (gStartNewGame)
-            StartLevel(&gGameOptions);
         emscripten_cancel_main_loop();
 #endif
         return;
@@ -1593,7 +1591,12 @@ void MainGameLoop(void)
     //	gQuitGame = 1;
     //}
     if (gStartNewGame)
+    {
         StartLevel(&gGameOptions);
+#ifdef __EMSCRIPTEN__
+        MainGameLoop();
+#endif
+    }
 }
 
 int app_main(int argc, char const * const * argv)
