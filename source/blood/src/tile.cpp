@@ -33,9 +33,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "globals.h"
 #include "resource.h"
 #include "tile.h"
-#ifdef USE_OPENGL
-#include "mdsprite.h"
-#endif
 
 void qloadvoxel(int32_t nVoxel)
 {
