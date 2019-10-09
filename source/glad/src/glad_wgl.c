@@ -92,8 +92,7 @@ static PFNGLXGETPROCADDRESSPROC_PRIVATE gladGetProcAddressPtr;
 static
 int open_gl(void) {
 #ifdef __EMSCRIPTEN__
-    gladGetProcAddressPtr = emscripten_GetProcAddress("glXGetProcAddressARB");
-    return gladGetProcAddressPtr != NULL;
+    return 1;
 #else
 #ifdef __APPLE__
     static const char *NAMES[] = {
@@ -137,7 +136,7 @@ void close_gl(void) {
 static
 void* get_proc(const char *namez) {
 #ifdef __EMSCRIPTEN__
-    return emscripten_GetProcAddress(namez);
+    return gladGetProcAddressPtr(namez);
 #else
     void* result = NULL;
     if(libGL == NULL) return NULL;
@@ -267,6 +266,9 @@ static void find_coreWGL(HDC hdc) {
 }
 
 int gladLoadWGLLoader(GLADloadproc load, HDC hdc) {
+#ifdef __EMSCRIPTEN__
+    gladGetProcAddressPtr = load;
+#endif
 	wglGetExtensionsStringARB = (PFNWGLGETEXTENSIONSSTRINGARBPROC)load("wglGetExtensionsStringARB");
 	wglGetExtensionsStringEXT = (PFNWGLGETEXTENSIONSSTRINGEXTPROC)load("wglGetExtensionsStringEXT");
 	if(wglGetExtensionsStringARB == NULL && wglGetExtensionsStringEXT == NULL) return 0;
