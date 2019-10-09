@@ -38,6 +38,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <glad/glad.h>
+#ifdef __EMSCRIPTEN__
+#include <emscripten.h>
+#endif
 
 static void* get_proc(const char *namez);
 
@@ -98,6 +101,10 @@ static PFNGLXGETPROCADDRESSPROC_PRIVATE gladGetProcAddressPtr;
 
 static
 int open_gl(void) {
+#ifdef __EMSCRIPTEN__
+    gladGetProcAddressPtr = emscripten_GetProcAddress("glXGetProcAddressARB");
+    return gladGetProcAddressPtr != NULL;
+#else
 #ifdef __APPLE__
     static const char *NAMES[] = {
         "../Frameworks/OpenGL.framework/OpenGL",
@@ -125,6 +132,7 @@ int open_gl(void) {
     }
 
     return 0;
+#endif
 }
 
 static
@@ -138,6 +146,9 @@ void close_gl(void) {
 
 static
 void* get_proc(const char *namez) {
+#ifdef __EMSCRIPTEN__
+    return emscripten_GetProcAddress(namez);
+#else
     void* result = NULL;
     if(libGL == NULL) return NULL;
 
@@ -155,6 +166,7 @@ void* get_proc(const char *namez) {
     }
 
     return result;
+#endif
 }
 
 int gladLoadGL(void) {
