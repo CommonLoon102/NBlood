@@ -1591,12 +1591,7 @@ void MainGameLoop(void)
     //	gQuitGame = 1;
     //}
     if (gStartNewGame)
-    {
         StartLevel(&gGameOptions);
-#ifdef __EMSCRIPTEN__
-        MainGameLoop();
-#endif
-    }
 }
 
 int app_main(int argc, char const * const * argv)
