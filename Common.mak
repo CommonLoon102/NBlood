@@ -436,7 +436,7 @@ ifeq ($(PLATFORM),BROWSER)
     override SDL_TARGET := 2
     override HAVE_GTK2 := 0
     override STARTUP_WINDOW := 0
-    override HAVE_VORBIS := 0
+    override HAVE_VORBIS := 1
 
     # Enable later
     override USE_OPENGL := 0
