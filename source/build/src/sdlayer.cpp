@@ -1192,6 +1192,15 @@ void mouseMoveToCenter(void)
     }
 }
 
+void mouseWarpInWindow(vec2_t pos)
+{
+    if (sdl_window)
+    {
+        g_mouseAbs = { pos.x, pos.y };
+        SDL_WarpMouseInWindow(sdl_window, g_mouseAbs.x, g_mouseAbs.y);
+    }
+}
+
 //
 // setjoydeadzone() -- sets the dead and saturation zones for the joystick
 //

@@ -4640,12 +4640,12 @@ int32_t m_mousewake_watchpoint, m_menuchange_watchpoint;
 #endif
 int32_t m_mousecaught;
 static vec2_t m_prevmousepos, m_mousepos, m_mousedownpos;
+static vec2_t m_mousemenupos = { 0, 0 };
 
 void Menu_Open(uint8_t playerID)
 {
     g_player[playerID].ps->gm |= MODE_MENU;
 
-    mouseReadAbs(&m_prevmousepos, &g_mouseAbs);
     m_mouselastactivity = -M_MOUSETIMEOUT;
 
 #if !defined EDUKE32_TOUCH_DEVICES
@@ -4653,10 +4653,15 @@ void Menu_Open(uint8_t playerID)
 #endif
 
     mouseLockToWindow(0);
+    if (m_mousemenupos.x == 0 && m_mousemenupos.y == 0)
+        m_mousemenupos = { xdim >> 1, ydim >> 1 };
+    mouseWarpInWindow(m_mousemenupos);
+    mouseReadAbs(&m_prevmousepos, &g_mouseAbs);
 }
 
 void Menu_Close(uint8_t playerID)
 {
+    m_mousemenupos = { g_mouseAbs.x, g_mouseAbs.y };
     auto & gm = g_player[playerID].ps->gm;
     if (gm & MODE_GAME)
     {
