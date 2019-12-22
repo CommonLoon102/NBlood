@@ -260,6 +260,7 @@ int32_t mouseReadAbs(vec2_t *pResult, vec2_t const *pInput);
 void mouseGrabInput(bool grab);
 void mouseLockToWindow(char a);
 void mouseMoveToCenter(void);
+void mouseWarpInWindow(vec2_t position);
 int32_t mouseReadButtons(void);
 void mouseReadPos(int32_t *x, int32_t *y);
 

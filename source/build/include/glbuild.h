@@ -32,8 +32,6 @@ extern void BuildGLErrorCheck(void);
 
 
 //////// dynamic/static API wrapping ////////
-
-#if !defined RENDERTYPESDL && defined _WIN32 && defined DYNAMIC_GL
 typedef HGLRC (WINAPI * bwglCreateContextProcPtr)(HDC);
 extern bwglCreateContextProcPtr bwglCreateContext;
 #define wglCreateContext bwglCreateContext
@@ -59,7 +57,7 @@ extern bwglGetPixelFormatProcPtr bwglGetPixelFormat;
 typedef BOOL (WINAPI * bwglSetPixelFormatProcPtr)(HDC,int32_t,const PIXELFORMATDESCRIPTOR*);
 extern bwglSetPixelFormatProcPtr bwglSetPixelFormat;
 #define wglSetPixelFormat bwglSetPixelFormat
-#endif
+
 
 #if defined DYNAMIC_GLU
 

@@ -5,10 +5,8 @@
 
 #include "build.h"
 
-#ifdef USE_OPENGL
 #include "glbuild.h"
 #include "glad/glad_wgl.h"
-#endif
 
 #define NEED_DINPUT_H
 #define NEED_DDRAW_H
@@ -25,6 +23,7 @@
 #include "engine_priv.h"
 #include "dxdidf.h"	// comment this out if c_dfDI* is being reported as multiply defined
 #include <signal.h>
+#include "glbuild.cpp"
 
 // undefine to restrict windowed resolutions to conventional sizes
 #define ANY_WINDOWED_SIZE
@@ -774,6 +773,16 @@ void joySetDeadZone(int32_t axis, uint16_t dead, uint16_t satur)
     }
 }
 
+void mouseWarpInWindow(vec2_t pos)
+{
+    if (hWindow)
+    {
+        LPRECT lpRect;
+        GetWindowRect(hWindow, lpRect);
+        g_mouseAbs = { lpRect->left+pos.x, lpRect->top+pos.y };
+        SetCursorPos(g_mouseAbs.x, g_mouseAbs.y);
+    }
+}
 
 //
 // getjoydeadzone() -- gets the dead and saturation zones for the joystick

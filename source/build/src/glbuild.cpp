@@ -3,8 +3,6 @@
 #include "glad/glad.h"
 #include "glbuild.h"
 
-#if defined USE_OPENGL
-
 #ifdef RENDERTYPESDL
 # include "sdlayer.h"
 #endif
@@ -66,7 +64,6 @@ bgluUnProjectProcPtr bgluUnProject;
 
 #if defined DYNAMIC_GL || defined DYNAMIC_GLEXT
 
-#if !defined RENDERTYPESDL && defined _WIN32
 static HMODULE hGLDLL;
 
 char *gldriver = NULL;
@@ -91,6 +88,27 @@ static void *getproc_(const char *s, int32_t *err, int32_t fatal, int32_t extens
     return t;
 }
 #define GETPROC(s)        getproc_(s,&err,1,0)
+
+int32_t unloadwgl(void)
+{
+    if (!hGLDLL) return 0;
+
+    DO_FREE_AND_NULL(gldriver);
+
+    FreeLibrary(hGLDLL);
+    hGLDLL = NULL;
+
+    bwglCreateContext = (bwglCreateContextProcPtr) NULL;
+    bwglDeleteContext = (bwglDeleteContextProcPtr) NULL;
+    bwglGetProcAddress = (bwglGetProcAddressProcPtr) NULL;
+    bwglMakeCurrent = (bwglMakeCurrentProcPtr) NULL;
+
+    bwglChoosePixelFormat = (bwglChoosePixelFormatProcPtr) NULL;
+    bwglDescribePixelFormat = (bwglDescribePixelFormatProcPtr) NULL;
+    bwglGetPixelFormat = (bwglGetPixelFormatProcPtr) NULL;
+    bwglSetPixelFormat = (bwglSetPixelFormatProcPtr) NULL;
+    return 0;
+}
 
 int32_t loadwgl(const char *driver)
 {
@@ -125,28 +143,6 @@ int32_t loadwgl(const char *driver)
     if (err) unloadwgl();
     return err;
 }
-int32_t unloadwgl(void)
-{
-    if (!hGLDLL) return 0;
-
-    DO_FREE_AND_NULL(gldriver);
-
-    FreeLibrary(hGLDLL);
-    hGLDLL = NULL;
-
-    bwglCreateContext = (bwglCreateContextProcPtr) NULL;
-    bwglDeleteContext = (bwglDeleteContextProcPtr) NULL;
-    bwglGetProcAddress = (bwglGetProcAddressProcPtr) NULL;
-    bwglMakeCurrent = (bwglMakeCurrentProcPtr) NULL;
-
-    bwglChoosePixelFormat = (bwglChoosePixelFormatProcPtr) NULL;
-    bwglDescribePixelFormat = (bwglDescribePixelFormatProcPtr) NULL;
-    bwglGetPixelFormat = (bwglGetPixelFormatProcPtr) NULL;
-    bwglSetPixelFormat = (bwglSetPixelFormatProcPtr) NULL;
-    return 0;
-}
-#endif
-
 #endif
 
 #if defined DYNAMIC_GLU
@@ -373,4 +369,4 @@ void texdbg_bglDeleteTextures(GLsizei n, const GLuint *textures, const char *src
 }
 # endif  // defined DEBUGGINGAIDS
 
-#endif
+
