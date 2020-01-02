@@ -478,6 +478,8 @@ static void thinkChase(spritetype *pSprite, XSPRITE *pXSprite)
                             break;
                         case 0:
                         case 4:
+                            sfxPlay3DSound(pSprite, 1457, 0, 0);
+                            aiNewState(pSprite, pXSprite, &gargoyleSBlast);
                             break;
                         case 3:
                             if (pSprite->type != sprite[gHitInfo.hitsprite].type && sprite[gHitInfo.hitsprite].type != kDudeGargoyleFlesh)
