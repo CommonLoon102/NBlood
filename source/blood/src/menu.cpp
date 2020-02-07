@@ -179,6 +179,7 @@ CGameMenu menuNetMain;
 CGameMenu menuNetStart;
 CGameMenu menuEpisode;
 CGameMenu menuDifficulty;
+CGameMenu menuUserMaps;
 CGameMenu menuOptionsOld;
 CGameMenu menuControls;
 CGameMenu menuMessages;
@@ -228,7 +229,10 @@ CGameMenuItemChain itemMainSave7("END GAME", 1, 0, 135, 320, 1, &menuRestart, -1
 CGameMenuItemChain itemMainSave8("QUIT", 1, 0, 150, 320, 1, &menuQuit, -1, NULL, 0);
 
 CGameMenuItemTitle itemEpisodesTitle("EPISODES", 1, 160, 20, 2038);
-CGameMenuItemChain7F2F0 itemEpisodes[6];
+CGameMenuItemChain7F2F0 itemEpisodes[kMaxEpisodes]; // plus 1 for User Map
+
+CGameMenuItemTitle itemUserMapTitle("USER MAP", 1, 160, 20, 2038);
+CGameMenuItemChain itemUserMaps[kMaxGameMenuItems];
 
 CGameMenuItemTitle itemDifficultyTitle("DIFFICULTY", 1, 160, 20, 2038);
 CGameMenuItemChain itemDifficulty1("STILL KICKING", 1, 0, 60, 320, 1, NULL, -1, SetDifficultyAndStart, 0);
@@ -819,6 +823,33 @@ void SetupDifficultyMenu(void)
     menuDifficulty.Add(&itemBloodQAV, false);
 }
 
+void SetupUserMapsMenu(void)
+{
+    menuUserMaps.Add(&itemUserMapTitle, false);
+
+    BUILDVFS_FIND_REC *r;
+    fnlist_t fnlist = FNLIST_INITIALIZER;
+
+    char filename[BMAX_PATH];
+    Bstrcpy(filename, "*.MAP");
+
+    fnlist_getnames(&fnlist, "/", filename, -1, 0);
+    gSysRes.FNAddFiles(&fnlist, filename);
+
+    int i = 0;
+    int x = 30;
+    for (r=fnlist.findfiles; r; r=r->next)
+    {
+        itemUserMaps[i] = CGameMenuItemChain(r->name, 3, 0, x, 320, 1, &menuDifficulty, -1, NULL, i);
+        itemUserMaps[i].isUserMap = true;
+        menuUserMaps.Add(&itemUserMaps[i], false);
+        i++;
+        x+=10;
+    }
+
+    menuUserMaps.Add(&itemBloodQAV, false);
+}
+
 void SetupEpisodeMenu(void)
 {
     menuEpisode.Add(&itemEpisodesTitle, false);
@@ -826,7 +857,7 @@ void SetupEpisodeMenu(void)
     int height;
     gMenuTextMgr.GetFontInfo(1, NULL, NULL, &height);
     int j = 0;
-    for (int i = 0; i < 6; i++)
+    for (int i = 0; i < kMaxEpisodes-1; i++)
     {
         EPISODEINFO *pEpisode = &gEpisodeInfo[i];
         if (!pEpisode->bloodbath || gGameOptions.nGameType != 0)
@@ -863,6 +894,22 @@ void SetupEpisodeMenu(void)
             j++;
         }
     }
+
+    // User Map
+    CGameMenuItemChain7F2F0 *pEpisodeItem = &itemEpisodes[kMaxEpisodes-1]; // the last is reserved for User Map
+    pEpisodeItem->m_nFont = 1;
+    pEpisodeItem->m_nX = 0;
+    pEpisodeItem->m_nWidth = 320;
+    pEpisodeItem->at20 = 1;
+    pEpisodeItem->m_pzText = "User Map";
+    pEpisodeItem->m_nY = 55+(height+8)*j;
+    pEpisodeItem->at24 = &menuUserMaps;
+    pEpisodeItem->at28 = 1;
+    pEpisodeItem->bCanSelect = 1;
+    pEpisodeItem->bEnable = 1;
+    SetupUserMapsMenu();
+    menuEpisode.Add(&itemEpisodes[kMaxEpisodes-1], false);
+
     menuEpisode.Add(&itemBloodQAV, false);
 }
 
@@ -1568,6 +1615,13 @@ void SetDifficultyAndStart(CGameMenuItemChain *pItem)
         gDemo.StopPlayback();
     gStartNewGame = true;
     gCheatMgr.sub_5BCF4();
+    if (Bstrlen(gGameOptions.szUserMap))
+    {
+        levelAddUserMap(gGameOptions.szUserMap);
+        levelSetupOptions(gGameOptions.nEpisode, gGameOptions.nLevel);
+        StartLevel(&gGameOptions);
+        viewResizeView(gViewSize);
+    }
     gGameMenuMgr.Deactivate();
 }
 
