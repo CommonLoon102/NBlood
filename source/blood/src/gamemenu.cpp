@@ -366,6 +366,10 @@ bool CGameMenu::Event(CGameMenuEvent &event)
 void CGameMenu::Add(CGameMenuItem *pItem, bool active)
 {
     dassert(pItem != NULL);
+    if (!(m_nItems < kMaxGameMenuItems))
+    {
+        int a = 0;
+    }
     dassert(m_nItems < kMaxGameMenuItems);
     pItemList[m_nItems] = pItem;
     pItem->pMenu = this;
@@ -376,6 +380,10 @@ void CGameMenu::Add(CGameMenuItem *pItem, bool active)
 
 void CGameMenu::SetFocusItem(int nItem)
 {
+    if (!(nItem >= 0 && nItem < m_nItems && nItem < kMaxGameMenuItems))
+    {
+        int a = 0;
+    }
     dassert(nItem >= 0 && nItem < m_nItems && nItem < kMaxGameMenuItems);
     if (CanSelectItem(nItem))
         m_nFocus = at8 = nItem;
@@ -662,6 +670,7 @@ CGameMenuItemChain::CGameMenuItemChain()
     at28 = -1;
     at2c = NULL;
     at30 = 0;
+    isUserMap = false;
 }
 
 CGameMenuItemChain::CGameMenuItemChain(const char *a1, int a2, int a3, int a4, int a5, int a6, CGameMenu *a7, int a8, void(*a9)(CGameMenuItemChain *), int a10)
@@ -731,7 +740,10 @@ bool CGameMenuItemChain::Event(CGameMenuEvent &event)
         if (at2c)
             at2c(this);
         if (at24)
+        {
+            Bstrcpy(gGameOptions.szUserMap, isUserMap ? m_pzText : "\0");
             gGameMenuMgr.Push(at24, at28);
+        }
         return false;
     }
     return CGameMenuItem::Event(event);
