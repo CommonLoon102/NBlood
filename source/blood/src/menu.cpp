@@ -43,6 +43,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 void SaveGame(CGameMenuItemZEditBitmap *, CGameMenuEvent *);
 
 void SaveGameProcess(CGameMenuItemChain *);
+void SetCustomMap(CGameMenuItemZCycle *pItem);
 void SetDifficultyAndStart(CGameMenuItemChain *);
 void SetDetail(CGameMenuItemSlider *);
 void SetGamma(CGameMenuItemSlider *);
@@ -179,7 +180,6 @@ CGameMenu menuNetMain;
 CGameMenu menuNetStart;
 CGameMenu menuEpisode;
 CGameMenu menuDifficulty;
-CGameMenu menuUserMaps;
 CGameMenu menuOptionsOld;
 CGameMenu menuControls;
 CGameMenu menuMessages;
@@ -229,10 +229,9 @@ CGameMenuItemChain itemMainSave7("END GAME", 1, 0, 135, 320, 1, &menuRestart, -1
 CGameMenuItemChain itemMainSave8("QUIT", 1, 0, 150, 320, 1, &menuQuit, -1, NULL, 0);
 
 CGameMenuItemTitle itemEpisodesTitle("EPISODES", 1, 160, 20, 2038);
-CGameMenuItemChain7F2F0 itemEpisodes[kMaxEpisodes]; // plus 1 for User Map
+CGameMenuItemChain7F2F0 itemEpisodes[kMaxEpisodes-1];
 
-CGameMenuItemTitle itemUserMapTitle("USER MAP", 1, 160, 20, 2038);
-CGameMenuItemChain itemUserMaps[kMaxGameMenuItems];
+CGameMenuItemZCycle itemUserMapCycle("USER MAP", 1, 160, 60, 320, 0, SetCustomMap, NULL, 0, 0, true);
 
 CGameMenuItemTitle itemDifficultyTitle("DIFFICULTY", 1, 160, 20, 2038);
 CGameMenuItemChain itemDifficulty1("STILL KICKING", 1, 0, 60, 320, 1, NULL, -1, SetDifficultyAndStart, 0);
@@ -378,6 +377,8 @@ struct resolution_t {
 resolution_t gResolution[MAXVALIDMODES];
 int gResolutionNum;
 const char *gResolutionName[MAXVALIDMODES];
+
+const char *customMaps[kMaxGameCycleItems-1];
 
 CGameMenu menuOptions;
 CGameMenu menuOptionsGame;
@@ -827,33 +828,6 @@ void SetupDifficultyMenu(void)
     menuDifficulty.Add(&itemBloodQAV, false);
 }
 
-void SetupUserMapsMenu(void)
-{
-    menuUserMaps.Add(&itemUserMapTitle, false);
-
-    BUILDVFS_FIND_REC *r;
-    fnlist_t fnlist = FNLIST_INITIALIZER;
-
-    char filename[BMAX_PATH];
-    Bstrcpy(filename, "*.MAP");
-
-    fnlist_getnames(&fnlist, "/", filename, -1, 0);
-    gSysRes.FNAddFiles(&fnlist, filename);
-
-    int i = 0;
-    int x = 30;
-    for (r=fnlist.findfiles; r; r=r->next)
-    {
-        itemUserMaps[i] = CGameMenuItemChain(r->name, 3, 0, x, 320, 1, &menuDifficulty, -1, NULL, i);
-        itemUserMaps[i].isUserMap = true;
-        menuUserMaps.Add(&itemUserMaps[i], false);
-        i++;
-        x+=10;
-    }
-
-    menuUserMaps.Add(&itemBloodQAV, false);
-}
-
 void SetupEpisodeMenu(void)
 {
     menuEpisode.Add(&itemEpisodesTitle, false);
@@ -900,20 +874,33 @@ void SetupEpisodeMenu(void)
     }
 
     // User Map
-    CGameMenuItemChain7F2F0 *pEpisodeItem = &itemEpisodes[kMaxEpisodes-1]; // the last is reserved for User Map
-    pEpisodeItem->m_nFont = 1;
-    pEpisodeItem->m_nX = 0;
-    pEpisodeItem->m_nWidth = 320;
-    pEpisodeItem->at20 = 1;
-    pEpisodeItem->m_pzText = "User Map";
-    pEpisodeItem->m_nY = 55+(height+8)*j;
-    pEpisodeItem->at24 = &menuUserMaps;
-    pEpisodeItem->at28 = 1;
-    pEpisodeItem->bCanSelect = 1;
-    pEpisodeItem->bEnable = 1;
-    SetupUserMapsMenu();
-    menuEpisode.Add(&itemEpisodes[kMaxEpisodes-1], false);
+    BUILDVFS_FIND_REC *r;
+    fnlist_t fnlist = FNLIST_INITIALIZER;
 
+    char filename[BMAX_PATH];
+    Bstrcpy(filename, "*.MAP");
+
+    fnlist_getnames(&fnlist, "/", filename, -1, 0);
+    gSysRes.FNAddFiles(&fnlist, filename);
+
+    int i = 0;
+    for (r=fnlist.findfiles; r; r=r->next)
+    {
+        if (i >= kMaxGameCycleItems)
+            break;
+
+        customMaps[i] = r->name;
+        i++;
+    }
+
+    itemUserMapCycle.SetTextArray(customMaps, i, 0);
+    itemUserMapCycle.m_nX = 125;
+    itemUserMapCycle.m_nWidth = 321;
+    itemUserMapCycle.m_nY = 55+(height+8)*(gEpisodeCount-1);
+    itemUserMapCycle.bCanSelect = 1;
+    itemUserMapCycle.bEnable = 1;
+
+    menuEpisode.Add(&itemUserMapCycle, false);
     menuEpisode.Add(&itemBloodQAV, false);
 }
 
@@ -1605,6 +1592,11 @@ void SetWeaponSwitch(CGameMenuItemZCycle *pItem)
 }
 
 extern bool gStartNewGame;
+
+void SetCustomMap(CGameMenuItemZCycle *pItem)
+{
+    Bstrcpy(gGameOptions.szUserMap, customMaps[pItem->m_nFocus]);
+}
 
 void SetDifficultyAndStart(CGameMenuItemChain *pItem)
 {
