@@ -31,8 +31,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #define M_MOUSETIMEOUT 210
 
-#define kMaxGameMenuItems 1280
-#define kMaxGameCycleItems 128
+#define kMaxGameMenuItems 128
+#define kMaxGameCycleItems 1280
 #define kMaxPicCycleItems 128
 #define kMaxTitleLength 32
 
@@ -155,7 +155,6 @@ public:
     int at28;
     void(*at2c)(CGameMenuItemChain *);
     int at30;
-    bool isUserMap;
     CGameMenuItemChain();
     CGameMenuItemChain(const char *, int, int, int, int, int, CGameMenu *, int, void(*)(CGameMenuItemChain *), int);
     virtual void Draw(void);
