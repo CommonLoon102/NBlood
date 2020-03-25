@@ -2599,17 +2599,21 @@ bool AddINIFile(const char *pzFile, bool bForce = false)
 void ScanINIFiles(void)
 {
     nINICount = 0;
-    BUILDVFS_FIND_REC *pINIList = klistpath("/", "*.ini", BUILDVFS_FIND_FILE);
+    BUILDVFS_FIND_REC* pINIList = klistpath("/", "*.ini", BUILDVFS_FIND_FILE);
     pINIChain = NULL;
-
-    if (bINIOverride || !pINIList)
-    {
-        AddINIFile(BloodIniFile, true);
-    }
-
+    bool bINIExists = false;
     for (auto pIter = pINIList; pIter; pIter = pIter->next)
     {
+        if (!Bstrncasecmp(BloodIniFile, pIter->name, BMAX_PATH))
+        {
+            bINIExists = true;
+        }
         AddINIFile(pIter->name);
+    }
+
+    if ((bINIOverride && !bINIExists) || !pINIList)
+    {
+        AddINIFile(BloodIniFile, true);
     }
     klistfree(pINIList);
     pINISelected = pINIChain;
@@ -2622,6 +2626,7 @@ void ScanINIFiles(void)
         }
     }
 }
+
 
 bool LoadArtFile(const char *pzFile)
 {
