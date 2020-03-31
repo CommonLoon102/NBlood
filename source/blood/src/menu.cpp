@@ -44,6 +44,7 @@ void SaveGame(CGameMenuItemZEditBitmap *, CGameMenuEvent *);
 
 void SaveGameProcess(CGameMenuItemChain *);
 void SetCustomMap(CGameMenuItemZCycle *pItem);
+void ShowDifficulties();
 void SetDifficultyAndStart(CGameMenuItemChain *);
 void SetDetail(CGameMenuItemSlider *);
 void SetGamma(CGameMenuItemSlider *);
@@ -235,7 +236,7 @@ CGameMenu menuUserMap;
 //CGameMenuItemZCycle itemUserMapCycle("USER MAP", 1, 160, 60, 320, 0, SetCustomMap, NULL, 0, 0, true);
 CGameMenuItemChain itemUserMap("USER MAP", 1, 0, 60, 320, 1, &menuUserMap, 0, NULL, 0);
 CGameMenuItemTitle itemUserMapTitle("USER MAP", 1, 160, 20, 2038);
-CGameMenuFileSelect itemUserMapList("", 3, 0, 0, 0, "./", "*.map", gGameOptions.szUserMap);
+CGameMenuFileSelect itemUserMapList("", 3, 0, 0, 0, "./", "*.map", gGameOptions.szUserMap, ShowDifficulties);
 
 CGameMenuItemTitle itemDifficultyTitle("DIFFICULTY", 1, 160, 20, 2038);
 CGameMenuItemChain itemDifficulty1("STILL KICKING", 1, 0, 60, 320, 1, NULL, -1, SetDifficultyAndStart, 0);
@@ -1613,6 +1614,12 @@ void SetCustomMap(CGameMenuItemZCycle *pItem)
 void ShowUserMapBrowser(CGameMenuItemChain *pItem)
 {
     //Bstrcpy(gGameOptions.szUserMap, customMaps[pItem->m_nFocus]);
+}
+
+void ShowDifficulties()
+{
+    gGameMenuMgr.Push(&menuDifficulty, 3);
+    gGameMenuMgr.Push(&menuDifficulty, 3); // Need to push twice because parent menu item will Pop once after selecting the file
 }
 
 void SetDifficultyAndStart(CGameMenuItemChain *pItem)
