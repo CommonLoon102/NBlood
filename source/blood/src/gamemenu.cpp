@@ -3023,6 +3023,18 @@ CGameMenuFileSelect::CGameMenuFileSelect(const char* _pzText, int _nFont, int _x
     onFileSelectedEventHandler = _onFileSelectedEventHandler;
 }
 
+void CGameMenuFileSelect::InitObject(const char *_pzText, int _nFont, int _x, int _y, int _nWidth, const char *_startdir, const char *_pattern, char *_destination)
+{
+    m_pzText = _pzText;
+    m_nFont = _nFont;
+    m_nX = _x;
+    m_nY = _y;
+    m_nWidth = _nWidth;
+    startdir = _startdir;
+    pattern = _pattern;
+    destination = _destination;
+}
+
 static int32_t xdim_from_320_16(int32_t x)
 {
     const int32_t screenwidth = scale(240<<16, xdim, ydim);
@@ -3250,7 +3262,8 @@ bool CGameMenuFileSelect::Select(void)
     if (!findhigh[currentList])
         return false;
 
-    Bstrcat(destination, findhigh[currentList]->name);
+    if (IsDestinationEndsWithSlash())
+        Bstrcat(destination, findhigh[currentList]->name);
 
     if (currentList == 0)
     {
@@ -3344,14 +3357,14 @@ bool CGameMenuFileSelect::MouseEvent(CGameMenuEvent &event)
     return event.at0 != kMenuEventNone;
 }
 
-void CGameMenuFileSelect::InitObject(const char *_pzText, int _nFont, int _x, int _y, int _nWidth, const char *_startdir, const char *_pattern, char *_destination)
+bool CGameMenuFileSelect::IsDestinationEndsWithSlash(void)
 {
-    m_pzText = _pzText;
-    m_nFont = _nFont;
-    m_nX = _x;
-    m_nY = _y;
-    m_nWidth = _nWidth;
-    startdir = _startdir;
-    pattern = _pattern;
-    destination = _destination;
+    int i = 0;
+    char c = 0;
+
+    while (destination[i] != 0)
+        c = destination[i++];
+
+    return '/' == c;
 }
+
