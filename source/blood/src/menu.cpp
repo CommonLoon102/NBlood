@@ -43,7 +43,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 void SaveGame(CGameMenuItemZEditBitmap *, CGameMenuEvent *);
 
 void SaveGameProcess(CGameMenuItemChain *);
-void SetCustomMap(CGameMenuItemZCycle *pItem);
 void ShowDifficulties();
 void SetDifficultyAndStart(CGameMenuItemChain *);
 void SetDetail(CGameMenuItemSlider *);
@@ -233,7 +232,6 @@ CGameMenuItemTitle itemEpisodesTitle("EPISODES", 1, 160, 20, 2038);
 CGameMenuItemChain7F2F0 itemEpisodes[kMaxEpisodes-1];
 
 CGameMenu menuUserMap;
-//CGameMenuItemZCycle itemUserMapCycle("USER MAP", 1, 160, 60, 320, 0, SetCustomMap, NULL, 0, 0, true);
 CGameMenuItemChain itemUserMap("USER MAP", 1, 0, 60, 320, 1, &menuUserMap, 0, NULL, 0);
 CGameMenuItemTitle itemUserMapTitle("USER MAP", 1, 160, 20, 2038);
 CGameMenuFileSelect itemUserMapList("", 3, 0, 0, 0, "./", "*.map", gGameOptions.szUserMap, ShowDifficulties);
@@ -382,9 +380,6 @@ struct resolution_t {
 resolution_t gResolution[MAXVALIDMODES];
 int gResolutionNum;
 const char *gResolutionName[MAXVALIDMODES];
-
-//const char *customMaps[kMaxGameCycleItems-1];
-//static char customMap[BMAX_PATH];
 
 CGameMenu menuOptions;
 CGameMenu menuOptionsGame;
@@ -878,36 +873,6 @@ void SetupEpisodeMenu(void)
             j++;
         }
     }
-
-    //// User Map
-    //BUILDVFS_FIND_REC *r;
-    //fnlist_t fnlist = FNLIST_INITIALIZER;
-
-    //char filename[BMAX_PATH];
-    //Bstrcpy(filename, "*.MAP");
-
-    //fnlist_getnames(&fnlist, "/", filename, -1, 0);
-    //gSysRes.FNAddFiles(&fnlist, filename);
-
-    //int i = 0;
-    //for (r=fnlist.findfiles; r; r=r->next)
-    //{
-    //    if (i >= kMaxGameCycleItems)
-    //        break;
-
-    //    customMaps[i] = r->name;
-    //    i++;
-    //}
-
-    //itemUserMapCycle.SetTextArray(customMaps, i, 0);
-    //itemUserMapCycle.m_nX = 125;
-    //itemUserMapCycle.m_nWidth = 321;
-    //itemUserMapCycle.m_nY = 55+(height+8)*(gEpisodeCount-1);
-    //itemUserMapCycle.bCanSelect = 1;
-    //itemUserMapCycle.bEnable = 1;
-
-    //menuEpisode.Add(&itemUserMapCycle, false);
-
 
     itemUserMap.m_nY = 55+(height+8)*(gEpisodeCount-1);
     menuEpisode.Add(&itemUserMap, false);
@@ -1606,20 +1571,13 @@ void SetWeaponSwitch(CGameMenuItemZCycle *pItem)
 
 extern bool gStartNewGame;
 
-void SetCustomMap(CGameMenuItemZCycle *pItem)
-{
-    //Bstrcpy(gGameOptions.szUserMap, customMaps[pItem->m_nFocus]);
-}
-
-void ShowUserMapBrowser(CGameMenuItemChain *pItem)
-{
-    //Bstrcpy(gGameOptions.szUserMap, customMaps[pItem->m_nFocus]);
-}
-
 void ShowDifficulties()
 {
     gGameMenuMgr.Push(&menuDifficulty, 3);
-    gGameMenuMgr.Push(&menuDifficulty, 3); // Need to push twice because parent menu item will Pop once after selecting the file
+
+    // Need to push twice because parent menu item will do
+    // gGameMenuMgr.Pop() once after selecting the user map
+    gGameMenuMgr.Push(&menuDifficulty, 3);
 }
 
 void SetDifficultyAndStart(CGameMenuItemChain *pItem)
