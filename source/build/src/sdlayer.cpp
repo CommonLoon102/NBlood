@@ -689,8 +689,6 @@ int32_t initsystem(void)
     SDL_SetThreadPriority(SDL_THREAD_PRIORITY_HIGH);
 #endif
 
-    atexit(uninitsystem);
-
     timerInit(CLOCKTICKSPERSECOND);
 
     frameplace = 0;
@@ -744,6 +742,8 @@ void uninitsystem(void)
 #ifdef _WIN32
     windowsPlatformCleanup();
 #endif
+
+    SDL_Quit();
 
 #ifdef USE_OPENGL
 # if SDL_MAJOR_VERSION >= 2

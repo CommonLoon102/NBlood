@@ -206,6 +206,7 @@ void ShutDown(void)
 void QuitGame(void)
 {
     ShutDown();
+    uninitsystem();
     exit(0);
 }
 
@@ -1946,9 +1947,8 @@ RESTART:
         }
         goto RESTART;
     }
-    ShutDown();
 
-    return 0;
+    QuitGame();
 }
 
 static int32_t S_DefineAudioIfSupported(char *fn, const char *name)

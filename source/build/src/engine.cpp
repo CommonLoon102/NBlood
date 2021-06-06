@@ -8753,9 +8753,7 @@ void engineUnInit(void)
 
     DO_FREE_AND_NULL(g_defNamePtr);
 
-#if SDL_MAJOR_VERSION >= 1
-    SDL_Quit();
-#endif
+    //uninitsystem();
 }
 
 
